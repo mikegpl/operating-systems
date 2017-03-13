@@ -48,7 +48,7 @@ void List_print(List* list){
         printf("List size: %d\n", list->elementCounter);
         int i = 0;
         ListNode* tmp = list->head->next;
-        while(tmp != NULL && tmp!= list->tail){
+        while(tmp != NULL && tmp != list->tail){
             printf("Element nr: %d \t value: %d \n", i, tmp->value.xD);
             tmp = tmp->next;
             i++;
@@ -64,6 +64,27 @@ ListNode* List_findContact(List* list, Contact contact){
     while(tmp->next != NULL && !Contact_equals(tmp->next->value, contact))
         tmp = tmp->next;
     return tmp->next;
+}
+
+bool List_removeContact(List* list, Contact contact){
+    ListNode* node = List_findContact(list, contact);
+    if(node != NULL){
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+        free(node);
+        list->elementCounter--;
+        return true;
+    }
+    else
+        return false;
+}
+
+void List_forEach(List* list, ListNodeOperation operation){
+    ListNode* tmp = list->head->next;
+    while(tmp != NULL && tmp != list->tail){
+        operation(tmp);
+        tmp = tmp->next;
+    }
 }
 
 void _List_delete(ListNode* node){
@@ -131,7 +152,7 @@ void _BST_delete(BSTNode* node){
 
 
 bool Contact_equals(Contact c1, Contact c2){
-    int comp =  strcmp(c1.name, c2.name) + strcmp(c1.surname, c2.surname) +
+    int comp = strcmp(c1.name, c2.name) + strcmp(c1.surname, c2.surname) +
                strcmp(c1.email, c2.email) + strcmp(c1.phoneNumber, c2.phoneNumber) +
                strcmp(c1.birthDate, c2.birthDate) + strcmp(c1.address, c2.address);
     return (comp == 0);

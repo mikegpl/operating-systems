@@ -17,13 +17,18 @@ Contact newContact(int xD){
     return new;
 }
 
+void printNode(ListNode* node){
+    node->value.xD *= 2;
+    printf("%d\n", node->value.xD);
+}
+
 int main(int argc, char*argv[]){
     List* list = List_newList();
     int contactNumber = atoi(argv[1]);
     int tmp;
     for(int i = 0; i < contactNumber; i++){
         scanf("%d", &tmp);
-        if(i == 4){
+        if(i == 2){
             Contact tContact = newContact(tmp);
             strcpy(tContact.name, "testo\0");
             List_addContact(list, tContact);
@@ -33,13 +38,19 @@ int main(int argc, char*argv[]){
         }
 
     }
-    
+
     List_print(list);
+
+    printf("ForEach test\n");
+    List_forEach(list, printNode);
+
     Contact tContact = newContact(5);
     strcpy(tContact.name, "testo\0");
-    ListNode* test = List_findContact(list, tContact);
-    if(test != NULL){
-        printf("%s\n", test->value.name);
+    if(List_removeContact(list, tContact)){
+        List_print(list);
+    }
+    else{
+        printf("Can't delete non-existent list element\n");
     }
 
     List_delete(list);

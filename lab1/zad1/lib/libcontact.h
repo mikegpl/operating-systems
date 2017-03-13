@@ -14,6 +14,7 @@ typedef struct List List;
 typedef struct BSTNode BSTNode;
 typedef struct BST BST;
 typedef int (*Comparator)(Contact, Contact);
+typedef void (*ListNodeOperation)(ListNode*);
 
 typedef enum KeyType
 {
@@ -69,7 +70,7 @@ ListNode *ListNode_newNode(Contact);
 void List_print(List*);
 ListNode* List_findContact(List*, Contact);
 bool List_removeContact(List*, Contact);
-void List_forEach(List*);
+void List_forEach(List*, ListNodeOperation);
 List* List_sort(List*, KeyType);
 
 void _List_delete(ListNode*);
