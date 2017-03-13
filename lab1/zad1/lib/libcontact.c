@@ -270,7 +270,7 @@ BSTNode *BSTNode_newNode(Contact contact){
 
 void BST_print(BST* tree){
     printf("Printing tree\n");
-    _BST_printPreOrder(tree->root);
+    _BST_printInOrder(tree->root);
 }
 
 BSTNode* BST_findContact(BST* tree, Contact contact){
@@ -284,6 +284,12 @@ bool BST_removeContact(BST* tree, Contact contact){
     else{
         _BST_removeNode(tree, node);
         return true;
+    }
+}
+
+void BST_forEach(BST* tree, BSTNodeOperation operation){
+    if(tree != NULL){
+        _BST_forEach(tree->root, operation);
     }
 }
 
@@ -318,11 +324,11 @@ void _BST_addNode(BST* tree, BSTNode* node){
 }
 
 
-void _BST_printPreOrder(BSTNode* node){
+void _BST_printInOrder(BSTNode* node){
     if(node != NULL){
+        _BST_printInOrder(node->left);
         printf("%d\n", node->value.xD);
-        _BST_printPreOrder(node->left);
-        _BST_printPreOrder(node->right);
+        _BST_printInOrder(node->right);
     }
 }
 
@@ -394,6 +400,14 @@ BSTNode* _BSTNode_findMin(BSTNode* node){
     while(node->left != NULL)
         node = node->left;
     return node; 
+}
+
+void _BST_forEach(BSTNode* root, BSTNodeOperation operation){
+    if(root != NULL){
+        _BST_forEach(root->left, operation);
+        operation(root);
+        _BST_forEach(root->right, operation);
+    }
 }
 
 

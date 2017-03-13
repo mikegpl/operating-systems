@@ -15,6 +15,7 @@ typedef struct BSTNode BSTNode;
 typedef struct BST BST;
 typedef int (*Comparator)(Contact, Contact);
 typedef void (*ListNodeOperation)(ListNode*);
+typedef void (*BSTNodeOperation)(BSTNode*);
 
 typedef enum KeyType
 {
@@ -90,16 +91,17 @@ BSTNode* BSTNode_newNode(Contact);
 void BST_print(BST*);
 BSTNode* BST_findContact(BST*, Contact);
 bool BST_removeContact(BST*, Contact);
-void BST_forEach(BST*);
+void BST_forEach(BST*, BSTNodeOperation);
 BST* BST_sort(BST*, KeyType);
 
-
+BST* _BST_newBST(Comparator);
 void _BST_delete(BSTNode*);
 void _BST_addNode(BST*, BSTNode*);
-void _BST_printPreOrder(BSTNode*);
+void _BST_printInOrder(BSTNode*);
 BSTNode* _BSTNode_findContact(BSTNode*, Contact, Comparator);
 void _BST_removeNode(BST*, BSTNode*);
 BSTNode* _BSTNode_findMin(BSTNode*);
+void _BST_forEach(BSTNode*, BSTNodeOperation);
 BST* _BST_sort(BST*, Comparator);
 
 

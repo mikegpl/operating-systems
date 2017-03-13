@@ -17,7 +17,7 @@ Contact newContact(int xD){
     return new;
 }
 
-void printNode(ListNode* node){
+void printNode(BSTNode* node){
     node->value.xD *= 2;
     printf("%d\n", node->value.xD);
 }
@@ -29,7 +29,7 @@ int main(int argc, char*argv[]){
     for(int i = 0; i < contactNumber; i++){
         scanf("%d", &tmp);
         if(i == 1){
-            Contact tContact = newContact(5);
+            Contact tContact = newContact(tmp);
             strcpy(tContact.name, "testo\0");
             BST_addContact(tree, tContact);
         }
