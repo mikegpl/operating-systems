@@ -164,7 +164,7 @@ ListNode* _ListNode_quickerSort(ListNode* head, ListNode* tail, Comparator cmp){
             tmp->next = NULL;
             tmp = endHolder;
         }
-        
+
         smaller = _ListNode_quickerSort(smaller, _ListNode_getLast(smaller), cmp);
         larger = _ListNode_quickerSort(larger, _ListNode_getLast(larger), cmp);
         if(smaller == NULL){
@@ -222,11 +222,27 @@ ListNode* _ListNode_append(ListNode* list, ListNode* node){
 // ----------------------------     BST     ----------------------------
 // ---------------------------------------------------------------------
 
-BST *BST_newBST(Comparator comparator){
+BST *BST_newBST(KeyType type){
     BST* tree = (BST*) malloc(sizeof(BST));
     tree->root = NULL;
     tree->elementCounter = 0;
-    tree->comparator = comparator;
+    switch(type){
+        case SURNAME:
+            tree->comparator = Comparator_surname;
+            break;
+        case BIRTHDATE:
+            tree->comparator = Comparator_birthDate;
+            break;
+        case EMAIL:
+            tree->comparator = Comparator_email;
+            break;
+        case PHONE:
+            tree->comparator = Comparator_email;
+            break;
+        case XD:
+            tree->comparator = Comparator_xD;
+            break;
+    }
     return tree;
 }
 
@@ -237,6 +253,14 @@ void BST_delete(BST* tree){
     }
 }
 
+void BST_addContact(BST* tree, Contact contact){
+    if(tree->root == NULL)
+        tree->root = BSTNode_newNode(contact);
+    else
+        _BST_addNode(tree, BSTNode_newNode(contact));
+    tree->elementCounter++;
+}
+
 BSTNode *BSTNode_newNode(Contact contact){
     BSTNode* node = malloc(sizeof(BSTNode));
     node->parent = node->left = node->right = NULL;
@@ -244,11 +268,47 @@ BSTNode *BSTNode_newNode(Contact contact){
     return node;
 }
 
+void BST_print(BST* tree){
+    printf("Printing tree\n");
+    _BST_printPreOrder(tree->root);
+}
+
 void _BST_delete(BSTNode* node){
     if(node != NULL){
         _BST_delete(node->left);
         _BST_delete(node->right);
         free(node);
+    }
+}
+
+void _BST_addNode(BST* tree, BSTNode* node){
+    BSTNode* x = tree->root;
+    BSTNode* y = x;
+    Comparator cmp = tree->comparator;
+    while(x != NULL){
+        y = x;
+        if(cmp(node->value, x->value) >= 0)
+            x = x->right;
+        else
+            x = x->left;
+    }
+    node->parent = y;
+    if(y == NULL)
+        tree->root = node;
+    else{
+        if(cmp(node->value, y->value) >= 0)
+            y->right = node;
+        else
+            y->left = node;
+    }
+}
+
+
+void _BST_printPreOrder(BSTNode* node){
+    if(node != NULL){
+        printf("%d\n", node->value.xD);
+        _BST_printPreOrder(node->left);
+        _BST_printPreOrder(node->right);
     }
 }
 

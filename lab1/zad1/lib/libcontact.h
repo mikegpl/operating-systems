@@ -76,18 +76,19 @@ void List_sort(List*, KeyType);
 void _List_delete(ListNode*);
 void _List_addNode(List*, ListNode*);
 void _List_sort(List*, Comparator);
+void _ListNode_print(ListNode*);
 ListNode* _ListNode_getLast(ListNode*);
 ListNode* _ListNode_quickerSort(ListNode*, ListNode*, Comparator);
 ListNode* _ListNode_append(ListNode*, ListNode*);
 
 
 // ----------------------------     BST     ----------------------------
-BST* BST_newBST(Comparator);
+BST* BST_newBST(KeyType);
 void BST_delete(BST*);
 void BST_addContact(BST*, Contact);
-BSTNode*BSTNode_newNode(Contact);
+BSTNode* BSTNode_newNode(Contact);
 void BST_print(BST*);
-BSTNode * BST_findContact(BST*, Contact);
+BSTNode* BST_findContact(BST*, Contact);
 bool BST_removeContact(BST*, Contact);
 void BST_forEach(BST*);
 BST* BST_sort(BST*, KeyType);
@@ -95,6 +96,7 @@ BST* BST_sort(BST*, KeyType);
 
 void _BST_delete(BSTNode*);
 void _BST_addNode(BST*, BSTNode*);
+void _BST_printPreOrder(BSTNode*);
 BST* _BST_sort(BST*, Comparator);
 
 

@@ -23,7 +23,7 @@ void printNode(ListNode* node){
 }
 
 int main(int argc, char*argv[]){
-    List* list = List_newList();
+    BST* tree = BST_newBST(XD);
     int contactNumber = atoi(argv[1]);
     int tmp;
     for(int i = 0; i < contactNumber; i++){
@@ -31,17 +31,14 @@ int main(int argc, char*argv[]){
         if(i == 2){
             Contact tContact = newContact(tmp);
             strcpy(tContact.name, "testo\0");
-            List_addContact(list, tContact);
+            BST_addContact(tree, tContact);
         }
         else{
-            List_addContact(list, newContact(tmp));
+            BST_addContact(tree, newContact(tmp));
         }
-
     }
 
-    List_print(list);
-    List_sort(list, XD);
-    List_print(list);
-    List_delete(list);
+    BST_print(tree);
+    BST_delete(tree);    
     return 0;
 }
