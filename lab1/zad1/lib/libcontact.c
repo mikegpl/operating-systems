@@ -273,6 +273,10 @@ void BST_print(BST* tree){
     _BST_printPreOrder(tree->root);
 }
 
+BSTNode* BST_findContact(BST* tree, Contact contact){
+    return _BSTNode_findContact(tree->root, contact, tree->comparator);
+}
+
 void _BST_delete(BSTNode* node){
     if(node != NULL){
         _BST_delete(node->left);
@@ -311,6 +315,16 @@ void _BST_printPreOrder(BSTNode* node){
         _BST_printPreOrder(node->right);
     }
 }
+
+BSTNode* _BSTNode_findContact(BSTNode* root, Contact contact, Comparator cmp){
+    while(root != NULL && !Contact_equals(root->value, contact))
+        if(cmp(contact, root->value) >= 0)
+            root = root->right;
+        else
+            root = root->left;
+    return root;
+}
+
 
 // ---------------------------------------------------------------------
 // ---------------------------------------------------------------------

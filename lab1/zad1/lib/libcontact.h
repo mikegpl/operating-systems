@@ -97,6 +97,7 @@ BST* BST_sort(BST*, KeyType);
 void _BST_delete(BSTNode*);
 void _BST_addNode(BST*, BSTNode*);
 void _BST_printPreOrder(BSTNode*);
+BSTNode* _BSTNode_findContact(BSTNode*, Contact, Comparator);
 BST* _BST_sort(BST*, Comparator);
 
 
