@@ -49,7 +49,7 @@ void List_print(List* list){
         int i = 0;
         ListNode* tmp = list->head->next;
         while(tmp != NULL && tmp != list->tail){
-            printf("Element nr: %d \t value: %d \n", i, tmp->value.xD);
+            printf("Element nr: %d \t value: %s \n", i, tmp->value.name);
             tmp = tmp->next;
             i++;
         }
@@ -101,9 +101,6 @@ void List_sort(List* list, KeyType type){
         case PHONE:
             _List_sort(list, Comparator_phone);
             break;
-        case XD:
-            _List_sort(list, Comparator_xD);
-            break;
     }
 }
 
@@ -134,7 +131,7 @@ void _List_sort(List* list, Comparator cmp){
 
 void _ListNode_print(ListNode* node){
     while(node != NULL){
-        printf("L %d\n", node->value.xD);
+        printf("L %s\n", node->value.name);
         node = node->next;
     }
 }
@@ -239,9 +236,6 @@ BST *BST_newBST(KeyType type){
         case PHONE:
             tree->comparator = Comparator_email;
             break;
-        case XD:
-            tree->comparator = Comparator_xD;
-            break;
     }
     return tree;
 }
@@ -293,6 +287,20 @@ void BST_forEach(BST* tree, BSTNodeOperation operation){
     }
 }
 
+
+BST* BST_sort(BST* tree, KeyType type){
+    if(tree != NULL){
+        BST* newTree = BST_newBST(type);
+        _BST_copyNodes(newTree, tree->root);
+        BST_delete(tree);
+        return newTree;
+    }
+    else
+        return NULL;
+}
+
+
+
 void _BST_delete(BSTNode* node){
     if(node != NULL){
         _BST_delete(node->left);
@@ -327,7 +335,7 @@ void _BST_addNode(BST* tree, BSTNode* node){
 void _BST_printInOrder(BSTNode* node){
     if(node != NULL){
         _BST_printInOrder(node->left);
-        printf("%d\n", node->value.xD);
+        printf("%s\n", node->value.name);
         _BST_printInOrder(node->right);
     }
 }
@@ -410,6 +418,14 @@ void _BST_forEach(BSTNode* root, BSTNodeOperation operation){
     }
 }
 
+void _BST_copyNodes(BST* target, BSTNode* sourceRoot){
+    if(sourceRoot != NULL){
+        _BST_copyNodes(target, sourceRoot->left);
+        BST_addContact(target, sourceRoot->value);
+        _BST_copyNodes(target, sourceRoot->right);
+    }
+}
+
 
 // ---------------------------------------------------------------------
 // ---------------------------------------------------------------------
@@ -444,8 +460,4 @@ int Comparator_email(Contact c1, Contact c2){
 
 int Comparator_phone(Contact c1, Contact c2){
     return strcmp(c1.phoneNumber, c2.phoneNumber);
-}
-
-int Comparator_xD(Contact c1, Contact c2){
-    return (c1.xD - c2.xD);
 }

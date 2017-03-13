@@ -17,13 +17,13 @@ typedef int (*Comparator)(Contact, Contact);
 typedef void (*ListNodeOperation)(ListNode*);
 typedef void (*BSTNodeOperation)(BSTNode*);
 
+
 typedef enum KeyType
 {
-    SURNAME, BIRTHDATE, EMAIL, PHONE, XD
+    SURNAME, BIRTHDATE, EMAIL, PHONE
 } KeyType;
 
 struct Contact{
-    int xD;
     char name[20];
     char surname[20];
     char email[30];
@@ -103,7 +103,7 @@ void _BST_removeNode(BST*, BSTNode*);
 BSTNode* _BSTNode_findMin(BSTNode*);
 void _BST_forEach(BSTNode*, BSTNodeOperation);
 BST* _BST_sort(BST*, Comparator);
-
+void _BST_copyNodes(BST*, BSTNode*);
 
 // ----------------------------    Other    ----------------------------
 bool Contact_equals(Contact, Contact);
@@ -111,5 +111,4 @@ int Comparator_surname(Contact, Contact);
 int Comparator_birthDate(Contact, Contact);
 int Comparator_email(Contact, Contact);
 int Comparator_phone(Contact, Contact);
-int Comparator_xD(Contact, Contact);
 #endif
