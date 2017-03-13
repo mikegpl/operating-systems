@@ -87,6 +87,26 @@ void List_forEach(List* list, ListNodeOperation operation){
     }
 }
 
+void List_sort(List* list, KeyType type){
+    switch(type){
+        case SURNAME:
+            _List_sort(list, Comparator_surname);
+            break;
+        case BIRTHDATE:
+            _List_sort(list, Comparator_birthDate);
+            break;
+        case EMAIL:
+            _List_sort(list, Comparator_email);
+            break;
+        case PHONE:
+            _List_sort(list, Comparator_phone);
+            break;
+        case XD:
+            _List_sort(list, Comparator_xD);
+            break;
+    }
+}
+
 void _List_delete(ListNode* node){
     if(node != NULL){
         _List_delete(node->next);
@@ -101,6 +121,10 @@ void _List_addNode(List* list, ListNode* node){
     node->next = list->tail;
     list->tail->prev = node;
     list->elementCounter++;
+}
+
+void _List_sort(List* list, Comparator cmp){
+    return;
 }
 
 // ---------------------------------------------------------------------
@@ -158,4 +182,25 @@ bool Contact_equals(Contact c1, Contact c2){
     return (comp == 0);
 }
 
+// comparators
+// >0 if first is bigger, 0 if equals, <0 if first is smaller
 
+int Comparator_surname(Contact c1, Contact c2){
+    return strcmp(c1.surname, c2.surname);
+}
+
+int Comparator_birthDate(Contact c1, Contact c2){
+    return strcmp(c1.birthDate, c2.birthDate);
+}
+
+int Comparator_email(Contact c1, Contact c2){
+    return strcmp(c1.email, c2.email);
+}
+
+int Comparator_phone(Contact c1, Contact c2){
+    return strcmp(c1.phoneNumber, c2.phoneNumber);
+}
+
+int Comparator_xD(Contact c1, Contact c2){
+    return (c1.xD - c2.xD);
+}

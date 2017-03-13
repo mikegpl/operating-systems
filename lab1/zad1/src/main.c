@@ -40,19 +40,6 @@ int main(int argc, char*argv[]){
     }
 
     List_print(list);
-
-    printf("ForEach test\n");
-    List_forEach(list, printNode);
-
-    Contact tContact = newContact(5);
-    strcpy(tContact.name, "testo\0");
-    if(List_removeContact(list, tContact)){
-        List_print(list);
-    }
-    else{
-        printf("Can't delete non-existent list element\n");
-    }
-
     List_delete(list);
     return 0;
 }
