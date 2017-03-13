@@ -3,7 +3,7 @@ CFLAGS = -Wall -pedantic -std=c11
 SRC = src
 LIB = lib
 BIN = bin
-INC = -I$(LIB)
+INC = -iquote$(LIB)
 .PHONY: static
 .PHONY: shared
 .PHONY: dynamic
@@ -15,5 +15,5 @@ static:
 		ar crs liblist.a ./$(BIN)/liblist.o 
 		$(CC) $(CFLAGS) $(INC) ./$(SRC)/main.c -o main -L. -llist
 
-clear:
+clean:
 		rm -rf ./bin/*.o *.a main
