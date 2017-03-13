@@ -3,6 +3,10 @@
 #ifndef CONTACT_H
 #define CONTACT_H
 
+typedef int bool;
+#define true 1
+#define false 0
+
 typedef struct ContactBook ContactBook;
 typedef struct Contact Contact;
 typedef struct ListNode ListNode;
@@ -17,6 +21,7 @@ typedef enum KeyType
 } KeyType;
 
 struct Contact{
+    int xD;
     char name[20];
     char surname[20];
     char email[30];
@@ -55,27 +60,35 @@ struct BST
     Comparator comparator;
 };
 
-List *createList();
-void *removeList(List*);
-void addToList(List*, Contact);
+List *createList(); //
+void deleteList(List*);// 
+void addToList(List*, Contact);//
+ListNode *createListNode(Contact); //
+void printList(List*);//
+ListNode* findContactInList(List*, Contact);
 void removeFromList(List*, ListNode*);
-ListNode* findContactInList(List*);
 void forEachInList(List*);
 List* sortList(List*, KeyType);
 
-BST *createBST(Comparator);
-void *removeBST(BST*);
+BST *createBST(Comparator);//
+void deleteBST(BST*);//
 void addToBST(BST*, Contact);
+BSTNode *createBSTNode(Contact);//
+void printBST(BST*);
+BSTNode* findContactInBST(BST*, Contact);
 void removeFromBST(BST*, BSTNode*);
-BSTNode* findContactInBST(BST*);
 void forEachInBST(BST*);
 BST* sortBST(BST*, KeyType);
-
-ListNode *createListNode(Contact);
-BSTNode *createBSTNode(Contact);
 
 List* _sortList(List*, Comparator);
 BST* _sortBST(BST*, Comparator);
 
+void _deleteBST(BSTNode*);//
+void _deleteList(ListNode*);//
+
+void _addToList(List* list, ListNode* node);//
+void _addToBST(BST* tree, BSTNode* node);
+
+bool contactsEqual(Contact, Contact);
 
 #endif

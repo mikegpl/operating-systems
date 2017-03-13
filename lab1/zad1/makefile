@@ -9,6 +9,7 @@ INC = -I$(LIB)
 .PHONY: dynamic
 .PHONY: clean
 
+all: clean static
 
 static:
 		$(CC) $(CFLAGS) $(INC) -c ./$(LIB)/libcontact.c -o ./$(BIN)/libcontact.o
