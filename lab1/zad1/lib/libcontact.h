@@ -98,6 +98,8 @@ void _BST_delete(BSTNode*);
 void _BST_addNode(BST*, BSTNode*);
 void _BST_printPreOrder(BSTNode*);
 BSTNode* _BSTNode_findContact(BSTNode*, Contact, Comparator);
+void _BST_removeNode(BST*, BSTNode*);
+BSTNode* _BSTNode_findMin(BSTNode*);
 BST* _BST_sort(BST*, Comparator);
 
 

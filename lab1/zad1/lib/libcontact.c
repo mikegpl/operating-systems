@@ -277,6 +277,16 @@ BSTNode* BST_findContact(BST* tree, Contact contact){
     return _BSTNode_findContact(tree->root, contact, tree->comparator);
 }
 
+bool BST_removeContact(BST* tree, Contact contact){
+    BSTNode* node = BST_findContact(tree, contact);
+    if(tree == NULL || node == NULL)
+        return false;
+    else{
+        _BST_removeNode(tree, node);
+        return true;
+    }
+}
+
 void _BST_delete(BSTNode* node){
     if(node != NULL){
         _BST_delete(node->left);
@@ -323,6 +333,67 @@ BSTNode* _BSTNode_findContact(BSTNode* root, Contact contact, Comparator cmp){
         else
             root = root->left;
     return root;
+}
+
+void _BST_removeNode(BST* tree, BSTNode* node){
+    if(node->left == NULL && node->right == NULL){
+        if(node->parent == NULL)
+            tree->root = NULL;
+        else if(node == node->parent->left)
+            node->parent->left = NULL;
+        else
+            node->parent->right = NULL;
+        free(node);
+    }
+    else if(node->left == NULL || node->right == NULL){
+        if(node->left == NULL){
+            if(node->parent == NULL){
+                tree->root = node->right;
+                free(node);
+                tree->root->parent = NULL;
+            }
+            else{
+                if(node == node->parent->left){
+                    node->parent->left = node->right;
+                    node->right->parent = node->parent;
+                }
+                else{
+                    node->parent->right = node->right;
+                    node->right->parent = node->parent;
+                }
+                free(node);
+            }
+        }
+        else{
+            if(node->parent == NULL){
+                tree->root = node->left;
+                free(node);
+                tree->root->parent = NULL;
+            }
+            else{
+                if(node == node->parent->left){
+                    node->parent->left = node->left;
+                    node->left->parent = node->parent;
+                }
+                else{
+                    node->parent->right = node->left;
+                    node->left->parent = node->parent;
+                }
+                free(node);
+            }
+        }
+    }
+    else{
+        BSTNode* tmp = _BSTNode_findMin(node->right);
+        node->value = tmp->value;
+        _BST_removeNode(tree, tmp);
+    }
+}
+
+BSTNode* _BSTNode_findMin(BSTNode* node){
+    while(node->left != NULL)
+        node = node->left;
+    return node; 
 }
 
 

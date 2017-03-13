@@ -28,7 +28,7 @@ int main(int argc, char*argv[]){
     int tmp;
     for(int i = 0; i < contactNumber; i++){
         scanf("%d", &tmp);
-        if(i == 2){
+        if(i == 1){
             Contact tContact = newContact(5);
             strcpy(tContact.name, "testo\0");
             BST_addContact(tree, tContact);
@@ -39,10 +39,9 @@ int main(int argc, char*argv[]){
     }
     BST_print(tree);
     Contact ct = newContact(5);
-    strcpy(ct.name, "test2\0");
-    BSTNode* target = BST_findContact(tree, ct);
-    if(target != NULL)
-        printf("%s\t%d\n", target->value.name, target->left->value.xD);
+    strcpy(ct.name, "testo\0");
+    BST_removeContact(tree, ct);
+    BST_print(tree);
     BST_delete(tree);    
     return 0;
 }
