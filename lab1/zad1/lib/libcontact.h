@@ -60,35 +60,43 @@ struct BST
     Comparator comparator;
 };
 
-List *createList(); //
-void deleteList(List*);// 
-void addToList(List*, Contact);//
-ListNode *createListNode(Contact); //
-void printList(List*);//
-ListNode* findContactInList(List*, Contact);
-void removeFromList(List*, ListNode*);
-void forEachInList(List*);
-List* sortList(List*, KeyType);
 
-BST *createBST(Comparator);//
-void deleteBST(BST*);//
-void addToBST(BST*, Contact);
-BSTNode *createBSTNode(Contact);//
-void printBST(BST*);
-BSTNode* findContactInBST(BST*, Contact);
-void removeFromBST(BST*, BSTNode*);
-void forEachInBST(BST*);
-BST* sortBST(BST*, KeyType);
+// ---------------------------- Linked List ----------------------------
+List *List_newList(); 
+void List_delete(List*);
+void List_addContact(List*, Contact);
+ListNode *ListNode_newNode(Contact); 
+void List_print(List*);
+ListNode* List_findContact(List*, Contact);
+bool List_removeContact(List*, Contact);
+void List_forEach(List*);
+List* List_sort(List*, KeyType);
 
-List* _sortList(List*, Comparator);
-BST* _sortBST(BST*, Comparator);
+void _List_delete(ListNode*);
+void _List_addNode(List*, ListNode*);
+bool _List_removeNode(List*, ListNode*);
+List* _List_sortList(List*, Comparator);
 
-void _deleteBST(BSTNode*);//
-void _deleteList(ListNode*);//
 
-void _addToList(List* list, ListNode* node);//
-void _addToBST(BST* tree, BSTNode* node);
+// ----------------------------     BST     ----------------------------
+BST *BST_newBST(Comparator);
+void BST_delete(BST*);
+void BST_addContact(BST*, Contact);
+BSTNode *BSTNode_newNode(Contact);
+void BST_print(BST*);
+BSTNode* BST_findContact(BST*, Contact);
+bool BST_removeContact(BST*, Contact);
+void BST_forEach(BST*);
+BST* BST_sort(BST*, KeyType);
 
-bool contactsEqual(Contact, Contact);
+
+void _BST_delete(BSTNode*);
+void _BST_addNode(BST*, BSTNode*);
+bool _BST_removeNode(BST*, BSTNode*);
+BST* _BST_sortBST(BST*, Comparator);
+
+
+// ----------------------------    Other    ----------------------------
+bool Contact_equals(Contact, Contact);
 
 #endif

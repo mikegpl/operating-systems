@@ -18,21 +18,30 @@ Contact newContact(int xD){
 }
 
 int main(int argc, char*argv[]){
-    List* list = createList();
+    List* list = List_newList();
     int contactNumber = atoi(argv[1]);
     int tmp;
     for(int i = 0; i < contactNumber; i++){
         scanf("%d", &tmp);
-        addToList(list, newContact(tmp));
+        if(i == 4){
+            Contact tContact = newContact(tmp);
+            strcpy(tContact.name, "testo\0");
+            List_addContact(list, tContact);
+        }
+        else{
+            List_addContact(list, newContact(tmp));
+        }
+
     }
-
-    printList(list);
-
-    ListNode* test = findContactInList(list, newContact(5));
+    
+    List_print(list);
+    Contact tContact = newContact(5);
+    strcpy(tContact.name, "testo\0");
+    ListNode* test = List_findContact(list, tContact);
     if(test != NULL){
-        printf("%d\n", test->value.xD);
+        printf("%s\n", test->value.name);
     }
 
-    free(list);
+    List_delete(list);
     return 0;
 }

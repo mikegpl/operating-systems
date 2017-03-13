@@ -4,10 +4,7 @@ SRC = src
 LIB = lib
 BIN = bin
 INC = -I$(LIB)
-.PHONY: static
-.PHONY: shared
-.PHONY: dynamic
-.PHONY: clean
+.PHONY: all, static, shared, dynamic, clean
 
 all: clean static
 
