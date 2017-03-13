@@ -11,11 +11,10 @@ typedef struct BSTNode BSTNode;
 typedef struct BST BST;
 typedef int (*Comparator)(Contact, Contact);
 
-
 typedef enum KeyType
 {
     SURNAME, BIRTHDATE, EMAIL, PHONE
-};
+} KeyType;
 
 struct Contact{
     char name[20];
@@ -53,7 +52,7 @@ struct BST
 {
     BSTNode* root;
     int elementCounter;
-    KeyType type;
+    Comparator comparator;
 };
 
 List *createList();
@@ -64,13 +63,16 @@ ListNode* findContactInList(List*);
 void forEachInList(List*);
 List* sortList(List*, KeyType);
 
-BST *createBST();
+BST *createBST(Comparator);
 void *removeBST(BST*);
 void addToBST(BST*, Contact);
 void removeFromBST(BST*, BSTNode*);
 BSTNode* findContactInBST(BST*);
 void forEachInBST(BST*);
 BST* sortBST(BST*, KeyType);
+
+ListNode *createListNode(Contact);
+BSTNode *createBSTNode(Contact);
 
 List* _sortList(List*, Comparator);
 BST* _sortBST(BST*, Comparator);

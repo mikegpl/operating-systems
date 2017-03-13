@@ -1,6 +1,8 @@
-#include "liblist.h"
+#include "libcontact.h"
+#include <stdlib.h>
 
 int main(){
-    xD();
+    List* list = createList();
+    free(list);
     return 0;
 }
