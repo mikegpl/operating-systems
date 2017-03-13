@@ -124,8 +124,94 @@ void _List_addNode(List* list, ListNode* node){
 }
 
 void _List_sort(List* list, Comparator cmp){
-    return;
+    list->head->next->prev = NULL;
+    list->tail->prev->next = NULL;
+    list->head->next = _ListNode_quickerSort(list->head->next, list->tail->prev, cmp);
+    ListNode* tmp = _ListNode_getLast(list->head);
+    tmp->next = list->tail;
+    list->tail->prev = tmp;
 }
+
+void _ListNode_print(ListNode* node){
+    while(node != NULL){
+        printf("L %d\n", node->value.xD);
+        node = node->next;
+    }
+}
+
+ListNode* _ListNode_getLast(ListNode* list){
+    if(list == NULL)
+        return NULL;
+    while(list->next != NULL)
+        list = list->next;
+    return list;
+}
+
+ListNode* _ListNode_quickerSort(ListNode* head, ListNode* tail, Comparator cmp){
+    if(head != tail){
+        ListNode* smaller = NULL;
+        ListNode* larger = NULL;
+        ListNode* pivot = head;
+        ListNode* tmp = head->next;
+        pivot->next = pivot->prev = tmp->prev = NULL;
+
+        while(tmp != NULL){
+            if(cmp(tmp->value, pivot->value) >= 0)
+                larger = _ListNode_append(larger, tmp);
+            else
+                smaller = _ListNode_append(smaller, tmp);
+            ListNode* endHolder = tmp->next;
+            tmp->next = NULL;
+            tmp = endHolder;
+        }
+        
+        smaller = _ListNode_quickerSort(smaller, _ListNode_getLast(smaller), cmp);
+        larger = _ListNode_quickerSort(larger, _ListNode_getLast(larger), cmp);
+        if(smaller == NULL){
+            if(larger != NULL){
+                pivot->next = larger;
+                pivot->prev = NULL;
+                larger->prev = pivot;
+            }
+            return pivot;
+        }
+        else if (larger == NULL){
+            ListNode* mid = _ListNode_getLast(smaller);   
+            mid->next = pivot;
+            pivot->prev = mid;
+            pivot->next = NULL;
+            smaller->prev = NULL;
+            return smaller;
+        }
+        else{
+            ListNode* mid = _ListNode_getLast(smaller);  
+            mid->next = pivot;
+            pivot->prev = mid;
+            pivot->next = larger;
+            larger->prev = pivot;
+            smaller->prev = NULL;
+            return smaller;  
+        }
+    }
+    else
+        return head;
+}
+
+ListNode* _ListNode_append(ListNode* list, ListNode* node){
+    if(list == NULL){
+        node->prev = NULL;
+        return node;
+    }
+    else{
+        ListNode* tmp = list;
+        while(tmp->next != NULL)
+            tmp = tmp->next;
+        tmp->next = node;
+        node->prev = tmp;
+        return list;
+    }
+}
+
 
 // ---------------------------------------------------------------------
 // ---------------------------------------------------------------------

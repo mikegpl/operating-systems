@@ -63,12 +63,12 @@ struct BST
 
 
 // ---------------------------- Linked List ----------------------------
-List *List_newList(); 
+List* List_newList(); 
 void List_delete(List*);
 void List_addContact(List*, Contact);
-ListNode *ListNode_newNode(Contact); 
+ListNode* ListNode_newNode(Contact); 
 void List_print(List*);
-ListNode *List_findContact(List*, Contact);
+ListNode* List_findContact(List*, Contact);
 bool List_removeContact(List*, Contact);
 void List_forEach(List*, ListNodeOperation);
 void List_sort(List*, KeyType);
@@ -76,23 +76,26 @@ void List_sort(List*, KeyType);
 void _List_delete(ListNode*);
 void _List_addNode(List*, ListNode*);
 void _List_sort(List*, Comparator);
+ListNode* _ListNode_getLast(ListNode*);
+ListNode* _ListNode_quickerSort(ListNode*, ListNode*, Comparator);
+ListNode* _ListNode_append(ListNode*, ListNode*);
 
 
 // ----------------------------     BST     ----------------------------
-BST *BST_newBST(Comparator);
+BST* BST_newBST(Comparator);
 void BST_delete(BST*);
 void BST_addContact(BST*, Contact);
-BSTNode *BSTNode_newNode(Contact);
+BSTNode*BSTNode_newNode(Contact);
 void BST_print(BST*);
-BSTNode *BST_findContact(BST*, Contact);
+BSTNode * BST_findContact(BST*, Contact);
 bool BST_removeContact(BST*, Contact);
 void BST_forEach(BST*);
-BST *BST_sort(BST*, KeyType);
+BST* BST_sort(BST*, KeyType);
 
 
 void _BST_delete(BSTNode*);
 void _BST_addNode(BST*, BSTNode*);
-BST *_BST_sort(BST*, Comparator);
+BST* _BST_sort(BST*, Comparator);
 
 
 // ----------------------------    Other    ----------------------------

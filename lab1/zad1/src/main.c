@@ -40,6 +40,8 @@ int main(int argc, char*argv[]){
     }
 
     List_print(list);
+    List_sort(list, XD);
+    List_print(list);
     List_delete(list);
     return 0;
 }
