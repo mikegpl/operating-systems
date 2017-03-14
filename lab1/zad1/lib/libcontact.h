@@ -24,12 +24,12 @@ typedef enum KeyType
 } KeyType;
 
 struct Contact{
-    char name[20];
-    char surname[20];
+    char name[30];
+    char surname[30];
     char email[30];
-    char phoneNumber[10];
+    char phoneNumber[20];
     // date format YYYY-MM-DD
-    char birthDate[10];
+    char birthDate[20];
     char address[30];
 };
 
@@ -107,6 +107,8 @@ void _BST_copyNodes(BST*, BSTNode*);
 
 // ----------------------------    Other    ----------------------------
 bool Contact_equals(Contact, Contact);
+Contact* Contact_newContact();
+
 int Comparator_surname(Contact, Contact);
 int Comparator_birthDate(Contact, Contact);
 int Comparator_email(Contact, Contact);

@@ -1,17 +1,19 @@
 CC = gcc
 CFLAGS = -Wall -pedantic -std=c11
-SRC = src
 LIB = lib
 BIN = bin
 INC = -I$(LIB)
-.PHONY: all, static, shared, dynamic, clean
+SHRLIBOPT = -fPIC -shared
+.PHONY: static, shared, clean
+ 
 
-all: clean static
-
-static:
+static: clean
 		$(CC) $(CFLAGS) $(INC) -c ./$(LIB)/libcontact.c -o ./$(BIN)/libcontact.o
 		ar crs libcontact.a ./$(BIN)/libcontact.o 
-		$(CC) $(CFLAGS) $(INC) ./$(SRC)/main.c -o main -L. -lcontact
+
+shared: clean
+		$(CC) $(CFLAGS) -fPIC -c ./$(LIB)/libcontact.c -o ./$(BIN)/libcontact.o
+		$(CC) $(SHRLIBOPT) ./$(BIN)/libcontact.o -o ./libcontactbook.so
 
 clean:
-		rm -rf ./bin/*.o *.a main
+		rm -rf ./bin/*.o *.a *.so

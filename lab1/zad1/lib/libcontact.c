@@ -1,4 +1,4 @@
-#include <libcontact.h>
+#include "libcontact.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
