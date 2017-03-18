@@ -2,6 +2,7 @@
 #ifndef MTIME_H
 #define MTIME_H
 
+typedef struct timespec timespec;
 typedef struct timeval timeval;
 typedef struct rusage rusage;
 typedef struct ExecTime{

@@ -1,15 +1,13 @@
 #include <time.h>
 #include <sys/resource.h>
-#include <sys/time.h>
 #include <stdio.h>
 #include "measureTime.h"
-
 
 ExecTime getExecTime(){
     rusage ru;
     ExecTime time;
-    getrusage(RUSAGE_SELF, &ru);
     time.real = getRealTime();
+    getrusage(RUSAGE_SELF, &ru);
     time.user = getUserTime(ru);
     time.sys = getSystemTime(ru);
     return time;
@@ -30,9 +28,9 @@ double getUserTime(rusage ru){
 }
 
 double getRealTime(){
-    timeval tim;
-    gettimeofday(&tim,NULL);
-    double t = (double)tim.tv_sec * 1000.0 + tim.tv_usec / 1000.0;
+    timespec tim;
+    clock_gettime(CLOCK_REALTIME, &tim);
+    double t = (double)tim.tv_sec * 1000.0 + tim.tv_nsec / 1000000.0;
     return t;
 }
 
@@ -52,5 +50,5 @@ ExecTime measureTime(Action action, char* message){
 }
 
 void printTime(ExecTime time, char* message){
-    printf("User: \t %f ms \t Real: %f ms \t System %f ms \t %s\n", time.user, time.real, time.sys, message);
+    printf("User: \t %fms\t Real: %fms\t System %fms\t Action: %s\n", time.user, time.real, time.sys, message);
 }

@@ -12,7 +12,7 @@ typedef struct ListNode ListNode;
 typedef struct List List;
 typedef struct BSTNode BSTNode;
 typedef struct BST BST;
-typedef int (*Comparator)(Contact, Contact);
+typedef int (*Comparator)(Contact*, Contact*);
 typedef void (*ListNodeOperation)(ListNode*);
 typedef void (*BSTNodeOperation)(BSTNode*);
 
@@ -27,7 +27,6 @@ struct Contact{
     char* surname;
     char* email;
     char* phoneNumber;
-    // date format YYYY-MM-DD
     char* birthDate;
     char* address;
 };
@@ -48,7 +47,7 @@ struct List
 
 struct BSTNode
 {
-    Contact value;
+    Contact* value;
     BSTNode* left;
     BSTNode* right;
     BSTNode* parent;
@@ -107,6 +106,7 @@ void _BST_copyNodes(BST*, BSTNode*);
 
 // ----------------------------    Other    ----------------------------
 Contact* Contact_new();
+Contact* Contact_copy(Contact*);
 void Contact_delete(Contact*);
 bool Contact_equals(Contact*, Contact*);
 int Comparator_surname(Contact*, Contact*);

@@ -6,7 +6,7 @@
 #include "measureTime.h"
 
 
-const int contacts_number = 5000;
+const int contacts_number = 10000;
 const int read_buffer_size = 256;
 const char *read_delimiters = ",\n";
 
@@ -23,11 +23,10 @@ static void parseContact(char *raw, Contact *parsed) {
 
 static void loadContacts(Contact **contacts) {
     char *buffer = malloc(read_buffer_size);
-    FILE *data = fopen("data.txt", "r");
-
+    FILE *data = fopen("data.csv", "r");
     for (int i = 0; i < contacts_number; ++i) {
         fgets(buffer, read_buffer_size, data);
-        contacts[i] = malloc(sizeof(Contact));
+        contacts[i] = Contact_new();
         parseContact(buffer, contacts[i]);
     }
 
@@ -61,21 +60,21 @@ int main(void) {
     }
 
     void _addFirstTree(){
-        BST_addContact(treeBook, *contacts[0]);
+        BST_addContact(treeBook, Contact_copy(contacts[0]));
     }
 
     void _addFirstList(){
-        List_addContact(listBook, *contacts[0]);
+        List_addContact(listBook, Contact_copy(contacts[0]));
     }
 
     void _addContactsTree(){
         for(int i = 1; i < contacts_number; i++)
-            BST_addContact(treeBook, *contacts[i]);
+            BST_addContact(treeBook, Contact_copy(contacts[i]));
     }
 
     void _addContactsList(){
         for(int i = 1; i < contacts_number; i++)
-            List_addContact(listBook, *contacts[i]);
+            List_addContact(listBook, Contact_copy(contacts[i]));
     }
 
     void _sortTreeBook(){
@@ -129,10 +128,10 @@ int main(void) {
     }
 
     measureTime(_loadContacts, "Alloc space for and load contacts from .csv");
-    // // measureTime(_createTreeBook, "Create BST book");
-    // // measureTime(_createListBook, "Create list book");
-    // // measureTime(_addFirstTree, "Add first element to BST book");
-    // // measureTime(_addFirstList, "Add first element to list book");
+    measureTime(_createTreeBook, "Create BST book");
+    measureTime(_createListBook, "Create list book");
+    measureTime(_addFirstTree, "Add first element to BST book");
+    measureTime(_addFirstList, "Add first element to list book");
 
     // // ExecTime avgTree = measureTime(_addContactsTree, "Add all remaining contacts to BST book");
     // // avgTree.user /= contacts_number - 1;
@@ -155,8 +154,8 @@ int main(void) {
     // // measureTime(_findContactOptList, "Find contact in list book (optimistic case)");
     // // measureTime(_findContactPesTree, "Find contact in BST book (pessimistic case)");
     // // measureTime(_findContactPesList, "Find contact in list book (pessimistic case)");
-    // // measureTime(_deleteTreeBook, "Delete BST book");
-    // // measureTime(_deleteListBook, "Delete list book");
+    measureTime(_deleteTreeBook, "Delete BST book");
+    measureTime(_deleteListBook, "Delete list book");
 
     deleteContacts(contacts);
     return 0;
