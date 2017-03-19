@@ -75,7 +75,7 @@ benchmark_dynamicO2: shared
 	$(CC) $(CFLAGS) $(INC) $(MAIN_FILES) $(SHR_OPTS) -ldl -DDYNAMIC_LOADING -O2 -o benchmark
 
 benchmark_dynamicOs: shared
-	$(CC) $(CFLAGS) $(INC) $(MAIN_FILES) $(SHR_OPTS) -ldl -DDYNAMIC_LOADING -Os-o benchmark
+	$(CC) $(CFLAGS) $(INC) $(MAIN_FILES) $(SHR_OPTS) -ldl -DDYNAMIC_LOADING -Os -o benchmark
 
 benchmark_dynamicO3: shared
 	$(CC) $(CFLAGS) $(INC) $(MAIN_FILES) $(SHR_OPTS) -ldl -DDYNAMIC_LOADING -O3 -o benchmark

@@ -104,9 +104,14 @@ static void loadContacts(Contact **contacts) {
     char *buffer = malloc(read_buffer_size);
     FILE *data = fopen("data.csv", "r");
     for (int i = 0; i < contacts_number; ++i) {
-        fgets(buffer, read_buffer_size, data);
-        contacts[i] = (*pContact_new)();
-        parseContact(buffer, contacts[i]);
+        if(fgets(buffer, read_buffer_size, data)){
+            contacts[i] = (*pContact_new)();
+            parseContact(buffer, contacts[i]);
+        }
+        else{
+            printf("Error while reading data from file\n");
+            exit(1);
+        }
     }
 
     fclose(data);

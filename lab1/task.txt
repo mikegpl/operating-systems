@@ -56,6 +56,8 @@ b) Rozszerz plik Makefile z punktu 3a) dodajac mozliwosc skompilowania programu 
 
 Wyniki pomiarow dodaj do pliku results.txt. Otrzymane wyniki krotko skomentuj.
 
+--
+
 Zadanie 4. Analiza pliku core
 Zmodyfikuj program z punktu 2 tak aby wygenerowany został zrzut pamieci (plik core). Korzystajac z gdb oraz zrzutu pamieci znajdz w programie miejsce i stan programu powodujace blad krytyczny i zrzut pamieci. Do oddawanego zestawu dodaj plik tekstowy gdb.txt a w nim: wskaz w jaki sposob zmodyfikowales program z punktu 2 i jaka operacja powoduje blad i zrzut pamieci (ew jakie kroki podczas uruchamiania programu należy wykonac aby blad i zrzut wystapily) a także opisz w jaki sposob posluzyles się/nalezy posluzyc sie gdb do analizy pliku core oraz wskaz/zalacz te elementy zrzuconego obrazu pamieci które potwierdzaja fakt oraz okolicznosci wystapienia (prefabrykowanego) bledu.
 
