@@ -35,7 +35,7 @@ void BST_delete(BST *tree){
 
 void BST_addContact(BST *tree, Contact *contact){
     if(tree->root == NULL)
-        tree->root = BSTNode_newNode(contact);
+        tree->root = BSTNode_newNode(&contact);
     else
         _BST_addNode(tree, BSTNode_newNode(contact));
     tree->elementCounter++;
