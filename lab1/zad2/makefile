@@ -1,8 +1,9 @@
 CC = gcc
 CFLAGS = -Wall -std=gnu11
 LIBRARY_NAME = contactBook
-SHRFLAGS = -fPIC -shared
+SHR_FLAGS = -fPIC -shared
 INC = -Ilib
+SHR_OPTS = -Wl,-rpath=.
 
 LIB_FILES = $(wildcard lib/*.c)
 MAIN_FILES = $(wildcard src/*.c)
@@ -14,12 +15,13 @@ main_static: static
 	$(CC) $(CFLAGS) $(INC) mainsrc/main.c -L. -l$(LIBRARY_NAME) -o main
 
 main_shared: shared
-	$(CC) $(CFLAGS) $(INC) mainsrc/main.c -Wl,-rpath=. -L. -l$(LIBRARY_NAME) -o main
+	$(CC) $(CFLAGS) $(INC) mainsrc/main.c $(SHR_OPTS) -L. -l$(LIBRARY_NAME) -o main
 
 benchmark_static: static
 	$(CC) $(CFLAGS) $(INC) $(MAIN_FILES) -L. -l$(LIBRARY_NAME) -o benchmark
 
-
+benchmark_shared: shared
+	$(CC) $(CFLAGS) $(INC) $(MAIN_FILES) $(SHR_OPTS) -L. -l$(LIBRARY_NAME) -o benchmark
 
 static: lib$(LIBRARY_NAME).a
 
@@ -29,24 +31,10 @@ lib$(LIBRARY_NAME).a: $(OBJ_FILES)
 	ar crs $@ $^
 
 lib$(LIBRARY_NAME).so: $(LIB_FILES)
-	$(CC) $(SHRFLAGS) $^ -o $@
+	$(CC) $(SHR_FLAGS) $^ -o $@
 
 bin/%.o: lib/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# shared: clean
-# 		$(CC) $(CFLAGS) -fPIC -c ./$(LIB)/contact.c -o ./$(BIN)/libcontact.o
-# 		$(CC) $(SHR_LIB_OPT) ./$(BIN)/libcontact.o -o ./libcontact.so
-# 		$(CC) $(CFLAGS) $(INC) ./$(SRC)/main.c -Wl,-rpath=. -L. -lcontact -o main
-
-# benchmark_static: clean
-# 		$(CC) $(CFLAGS) $(INC) -c ./$(LIB)/contact.c -o ./$(BIN)/libcontact.o 
-# 		ar crs libcontact.a ./$(BIN)/libcontact.o  
-# 		$(CC) $(CFLAGS) $(INC) $(MAIN_FILES) -L. -lcontact -o benchmark
-
-# benchmark_shared: clean
-# 		$(CC) $(CFLAGS) -fPIC -c ./$(LIB)/contact.c -o ./$(BIN)/libcontact.o
-# 		$(CC) $(SHR_LIB_OPT) ./$(BIN)/libcontact.o -o ./libcontact.so
-# 		$(CC) $(CFLAGS) $(INC) $(MAIN_FILES) -Wl,-rpath=. -L. -lcontact -o benchmark
 clean:
 		rm -rf ./bin/*.o *.a *.so benchmark main

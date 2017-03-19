@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "contact.h"
 #include "contactList.h"
 
 List *List_newList(){

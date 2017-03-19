@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdlib.h>
-#include <contact.h>
+#include "contactBook.h"
 
 
 const int contacts_number = 1000;
@@ -42,9 +42,10 @@ static void deleteContacts(Contact **contacts) {
 }
 
 int main(void) {
-    Contact **contacts;
-    BST *treeBook;
-    List *listBook;
+    Contact **contacts = calloc(contacts_number, sizeof(Contact*));
+    loadContacts(contacts);
+    // BST *treeBook;
+    // List *listBook;
     deleteContacts(contacts);
     return 0;
 }
