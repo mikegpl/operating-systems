@@ -1,3 +1,9 @@
+#ifdef DYNAMIC_LOADING
+
+#include <dlfcn.h>
+
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,9 +12,82 @@
 #include "measureTime.h"
 
 
-const int contacts_number = 1000;
+const int contacts_number = 10000;
 const int read_buffer_size = 256;
 const char *read_delimiters = ",\n";
+
+static Contact* (*pContact_new)();
+static Contact* (*pContact_copy)(Contact*);
+static void (*pContact_delete)(Contact*);
+
+static BST* (*pBST_newBST)(KeyType);
+static void (*pBST_addContact)(BST*, Contact*);
+static BST* (*pBST_sort)(BST*, KeyType);
+static bool (*pBST_removeContact)(BST*, Contact*);
+static BSTNode* (*p_BSTNode_findMin)(BSTNode*);
+static BSTNode* (*pBST_findContact)(BST*, Contact*);
+static void (*pBST_delete)(BST*);
+
+static List* (*pList_newList)();
+static void (*pList_addContact)(List*, Contact*);
+static void (*pList_sort)(List*, KeyType);
+static bool (*pList_removeContact)(List*, Contact*);
+static ListNode* (*pList_findContact)(List*, Contact*);
+static void (*pList_delete)(List*);
+
+/**********************Dynamic loading************************/
+static void *loadSymbols() {
+#ifdef DYNAMIC_LOADING
+    void *symbols = dlopen("libcontactBook.so", RTLD_LAZY);
+
+    if (symbols == NULL) {
+        fprintf(stderr, "Error opening library contactBook: %s", dlerror());
+        exit(1);
+    }
+
+    pContact_new = dlsym(symbols, "Contact_new");
+    pContact_copy = dlsym(symbols, "Contact_copy");
+    pContact_delete = dlsym(symbols, "Contact_delete");
+
+    pBST_newBST = dlsym(symbols, "BST_newBST");
+    pBST_addContact = dlsym(symbols, "BST_addContact");
+    pBST_sort = dlsym(symbols, "BST_sort");
+    pBST_removeContact = dlsym(symbols, "BST_removeContact");
+    p_BSTNode_findMin = dlsym(symbols, "_BSTNode_findMin");
+    pBST_findContact = dlsym(symbols, "BST_findContact");
+    pBST_delete = dlsym(symbols, "BST_delete");
+
+    pList_newList = dlsym(symbols, "List_newList");
+    pList_addContact = dlsym(symbols, "List_addContact");
+    pList_sort = dlsym(symbols, "List_sort");
+    pList_removeContact = dlsym(symbols, "List_removeContact");
+    pList_findContact = dlsym(symbols, "List_findContact");
+    pList_delete = dlsym(symbols, "List_delete");
+
+    return symbols;
+#else
+
+    pContact_new = Contact_new;
+    pContact_copy = Contact_copy;
+    pContact_delete = Contact_delete;
+
+    pBST_newBST = BST_newBST;
+    pBST_addContact = BST_addContact;
+    pBST_sort = BST_sort;
+    pBST_removeContact = BST_removeContact;
+    p_BSTNode_findMin = _BSTNode_findMin;
+    pBST_findContact = BST_findContact;
+    pBST_delete = BST_delete;
+    
+    pList_newList = List_newList;
+    pList_addContact = List_addContact;
+    pList_sort = List_sort;
+    pList_removeContact = List_removeContact;
+    pList_findContact = List_findContact;
+    pList_delete = List_delete;
+    return NULL;
+#endif
+}
 
 /*************************************************************/
 
@@ -26,7 +105,7 @@ static void loadContacts(Contact **contacts) {
     FILE *data = fopen("data.csv", "r");
     for (int i = 0; i < contacts_number; ++i) {
         fgets(buffer, read_buffer_size, data);
-        contacts[i] = Contact_new();
+        contacts[i] = (*pContact_new)();
         parseContact(buffer, contacts[i]);
     }
 
@@ -45,8 +124,8 @@ int main(void) {
     Contact **contacts;
     BST *treeBook;
     List *listBook;
+    loadSymbols();
 
-    
     /* ------------------------Test procedures---------------------- */
     void _loadContacts(){
         contacts = calloc(contacts_number, sizeof(Contact *));
@@ -54,79 +133,79 @@ int main(void) {
     }
 
     void _createTreeBook(){
-        treeBook = BST_newBST(BIRTHDATE);
+        treeBook = (*pBST_newBST)(BIRTHDATE);
     }
 
     void _createListBook(){
-        listBook = List_newList();
+        listBook = (*pList_newList)();
     }
 
     void _addFirstTree(){
-        BST_addContact(treeBook, Contact_copy(contacts[0]));
+        (*pBST_addContact)(treeBook, (*pContact_copy)(contacts[0]));
     }
 
     void _addFirstList(){
-        List_addContact(listBook, Contact_copy(contacts[0]));
+        (*pList_addContact)(listBook, (*pContact_copy)(contacts[0]));
     }
 
     void _addContactsTree(){
         for(int i = 1; i < contacts_number; i++)
-            BST_addContact(treeBook, Contact_copy(contacts[i]));
+            (*pBST_addContact)(treeBook, (*pContact_copy)(contacts[i]));
     }
 
     void _addContactsList(){
         for(int i = 1; i < contacts_number; i++)
-            List_addContact(listBook, Contact_copy(contacts[i]));
+            (*pList_addContact)(listBook, (*pContact_copy)(contacts[i]));
     }
 
     void _sortTreeBook(){
-        treeBook = BST_sort(treeBook, EMAIL);
+        treeBook = (*pBST_sort)(treeBook, EMAIL);
     }
 
     void _sortListBook(){
-        List_sort(listBook, EMAIL);
+        (*pList_sort)(listBook, EMAIL);
     }
 
     void _deleteContactOptTree(){
-        BST_removeContact(treeBook, treeBook->root->value);
+        (*pBST_removeContact)(treeBook, treeBook->root->value);
     }
 
     void _deleteContactOptList(){
-        List_removeContact(listBook, listBook->head->next->value);
+        (*pList_removeContact)(listBook, listBook->head->next->value);
     }
 
     void _deleteContactPesTree(){
-        BSTNode* minContact = _BSTNode_findMin(treeBook->root);
-        BST_removeContact(treeBook, minContact->value);
+        BSTNode* minContact = (*p_BSTNode_findMin)(treeBook->root);
+        (*pBST_removeContact)(treeBook, minContact->value);
     }
 
     void _deleteContactPesList(){
-        List_removeContact(listBook, listBook->tail->prev->value);
+        (*pList_removeContact)(listBook, listBook->tail->prev->value);
     }
 
     void _findContactOptTree(){
-        BST_findContact(treeBook, treeBook->root->value);
+        (*pBST_findContact)(treeBook, treeBook->root->value);
     }
 
     void _findContactOptList(){
-        List_findContact(listBook, listBook->head->next->value);
+        (*pList_findContact)(listBook, listBook->head->next->value);
     }
 
     void _findContactPesTree(){
-        BSTNode* minContact = _BSTNode_findMin(treeBook->root);
-        BST_findContact(treeBook, minContact->value);
+        BSTNode* minContact = (*p_BSTNode_findMin)(treeBook->root);
+        (*pBST_findContact)(treeBook, minContact->value);
     }
 
     void _findContactPesList(){
-        List_findContact(listBook, listBook->tail->prev->value);
+        (*pList_findContact)(listBook, listBook->tail->prev->value);
     }
 
     void _deleteTreeBook(){
-        BST_delete(treeBook);
+        (*pBST_delete)(treeBook);
     }
 
     void _deleteListBook(){
-        List_delete(listBook);
+        (*pList_delete)(listBook);
     }
 
     /* ------------------------------------------------------------- */

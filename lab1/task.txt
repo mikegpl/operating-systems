@@ -18,6 +18,8 @@ Biblioteka powinna umozliwiac:
 - sortowanie/przebudowanie ksiazki wg wybranego pola (Nazwisko, Data urodzenia, email, telefon)
 
 Przygotuj plik Makefile, zawierający polecenia kompilujące pliki źródłowe biblioteki oraz tworzące biblioteki w dwóch wersjach: statyczną i dzieloną.
+-- 
+
 
 Zadanie 2. Program korzystający z biblioteki
 Napisz program testujący działanie funkcji z biblioteki z zadania 1.
@@ -37,6 +39,7 @@ W programie zmierz i wypisz czasy realizacji podstawowych operacji:
 - przesortowanie/przebudowanie ksiazki
 
 Mierzac czasy pokaz trzy wartosci: czas rzeczywisty, czas uzytkownika i czas systemowy.
+--
 
 Zadanie 3. Testy i pomiary
 a) Przygotuj plik Makefile, zawierający polecenia kompilujące program z zad 2 na trzy sposoby:
