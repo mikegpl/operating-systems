@@ -50,6 +50,8 @@ oraz uruchamiający testy.
 
 Wyniki pomiarow zbierz w pliku results.txt. Plik zalacz jako element rozwiazania.
 
+--
+
 b) Rozszerz plik Makefile z punktu 3a) dodajac mozliwosc skompilowania programu na roznych poziomach optymalizacji -O0...-Os. Przeprowadz ponownie pomiary kompilujac i uruchamiajac program na roznych poziomach iotymalizacji.
 
 Wyniki pomiarow dodaj do pliku results.txt. Otrzymane wyniki krotko skomentuj.

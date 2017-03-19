@@ -50,5 +50,5 @@ ExecTime measureTime(Action action, char* message){
 }
 
 void printTime(ExecTime time, char* message){
-    printf("User: \t %fms\t Real: %fms\t System %fms\t Action: %s\n", time.user, time.real, time.sys, message);
+    printf("User: \t%7.3fms\t Real: \t%7.3fms\t System: \t%7.3fms\t Action: %s\n", time.user, time.real, time.sys, message);
 }

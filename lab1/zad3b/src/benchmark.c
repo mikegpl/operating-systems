@@ -121,15 +121,10 @@ static void deleteContacts(Contact **contacts) {
 }
 
 int main(void) {
-#ifdef DYNAMIC_LOADING
-    void *symbols = loadSymbols();
-#else
-    loadSymbols();
-#endif
-
     Contact **contacts;
     BST *treeBook;
     List *listBook;
+    loadSymbols();
 
     /* ------------------------Test procedures---------------------- */
     void _loadContacts(){
