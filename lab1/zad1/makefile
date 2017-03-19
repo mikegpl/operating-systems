@@ -1,19 +1,28 @@
 CC = gcc
-CFLAGS = -Wall -pedantic -std=c11
-LIB = lib
-BIN = bin
-INC = -I$(LIB)
-SHRLIBOPT = -fPIC -shared
+CFLAGS = -Wall -std=gnu11
+LIBRARY_NAME = contactBook
+SHR_FLAGS = -fPIC -shared
+INC = -Ilib
+SHR_OPTS = -Wl,-rpath=.
+
+LIB_FILES = $(wildcard lib/*.c)
+MAIN_FILES = $(wildcard src/*.c)
+OBJ_FILES = $(addprefix bin/, $(notdir $(LIB_FILES:.c=.o)))
+
 .PHONY: static, shared, clean
- 
 
-static: clean
-		$(CC) $(CFLAGS) $(INC) -c ./$(LIB)/libcontact.c -o ./$(BIN)/libcontact.o
-		ar crs libcontact.a ./$(BIN)/libcontact.o 
+static: lib$(LIBRARY_NAME).a
 
-shared: clean
-		$(CC) $(CFLAGS) -fPIC -c ./$(LIB)/libcontact.c -o ./$(BIN)/libcontact.o
-		$(CC) $(SHRLIBOPT) ./$(BIN)/libcontact.o -o ./libcontactbook.so
+shared: lib$(LIBRARY_NAME).so
+
+lib$(LIBRARY_NAME).a: $(OBJ_FILES)
+	ar crs $@ $^
+
+lib$(LIBRARY_NAME).so: $(LIB_FILES)
+	$(CC) $(SHR_FLAGS) $^ -o $@
+
+bin/%.o: lib/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-		rm -rf ./bin/*.o *.a *.so
+		rm -rf ./bin/*.o *.a *.so benchmark main
