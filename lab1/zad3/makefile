@@ -17,6 +17,9 @@ benchmark_static: static
 benchmark_shared: shared
 	$(CC) $(CFLAGS) $(INC) $(MAIN_FILES) $(SHR_OPTS) -L. -l$(LIBRARY_NAME) -o benchmark
 
+benchmark_dynamic: shared
+	$(CC) $(CFLAGS) $(INC) $(MAIN_FILES) $(SHR_OPTS) -ldl -DDYNAMIC_LOADING -o benchmark
+
 static: lib$(LIBRARY_NAME).a
 
 shared: lib$(LIBRARY_NAME).so
