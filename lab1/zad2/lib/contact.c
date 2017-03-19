@@ -132,6 +132,7 @@ void _List_sort(List *list, Comparator cmp){
     list->head->next->prev = NULL;
     list->tail->prev->next = NULL;
     list->head->next = _ListNode_quickSort(list->head->next, list->tail->prev, cmp);
+    list->head->next->prev = list->head;
     ListNode *tmp = _ListNode_getLast(list->head);
     tmp->next = list->tail;
     list->tail->prev = tmp;
@@ -440,7 +441,7 @@ void _BST_forEach(BSTNode *root, BSTNodeOperation operation){
 void _BST_copyNodes(BST *target, BSTNode *sourceRoot){
     if(sourceRoot != NULL){
         _BST_copyNodes(target, sourceRoot->left);
-        BST_addContact(target, sourceRoot->value);
+        BST_addContact(target, Contact_copy(sourceRoot->value));
         _BST_copyNodes(target, sourceRoot->right);
     }
 }

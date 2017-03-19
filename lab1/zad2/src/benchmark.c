@@ -45,7 +45,9 @@ int main(void) {
     Contact **contacts;
     BST *treeBook;
     List *listBook;
+
     
+    /* ------------------------Test procedures---------------------- */
     void _loadContacts(){
         contacts = calloc(contacts_number, sizeof(Contact *));
         loadContacts(contacts);
@@ -86,8 +88,7 @@ int main(void) {
     }
 
     void _deleteContactOptTree(){
-        BSTNode* minContact = _BSTNode_findMin(treeBook->root);
-        BST_removeContact(treeBook, minContact->value);
+        BST_removeContact(treeBook, treeBook->root->value);
     }
 
     void _deleteContactOptList(){
@@ -95,7 +96,8 @@ int main(void) {
     }
 
     void _deleteContactPesTree(){
-        BST_removeContact(treeBook, treeBook->root->value);
+        BSTNode* minContact = _BSTNode_findMin(treeBook->root);
+        BST_removeContact(treeBook, minContact->value);
     }
 
     void _deleteContactPesList(){
@@ -127,33 +129,37 @@ int main(void) {
         List_delete(listBook);
     }
 
+    /* ------------------------------------------------------------- */
+
     measureTime(_loadContacts, "Alloc space for and load contacts from .csv");
     measureTime(_createTreeBook, "Create BST book");
     measureTime(_createListBook, "Create list book");
     measureTime(_addFirstTree, "Add first element to BST book");
     measureTime(_addFirstList, "Add first element to list book");
 
-    // // ExecTime avgTree = measureTime(_addContactsTree, "Add all remaining contacts to BST book");
-    // // avgTree.user /= contacts_number - 1;
-    // // avgTree.sys /= contacts_number - 1;
-    // // avgTree.real /= contacts_number - 1;
-    // // printTime(avgTree, "Average time of adding contact to BST book");
-    // // ExecTime avgList = measureTime(_addContactsList, "Add all remaining contats to List book");
-    // // avgList.user /= contacts_number - 1;
-    // // avgList.sys /= contacts_number - 1;
-    // // avgList.real /= contacts_number - 1;
-    // // printTime(avgList, "Average time of adding contact to list book");
+    ExecTime avgTree = measureTime(_addContactsTree, "Add all remaining contacts to BST book");
+    ExecTime avgList = measureTime(_addContactsList, "Add all remaining contats to List book");
+    
+    avgTree.user /= contacts_number - 1;
+    avgTree.sys /= contacts_number - 1;
+    avgTree.real /= contacts_number - 1;
+    printTime(avgTree, "Average time of adding contact to BST book");
+    
+    avgList.user /= contacts_number - 1;
+    avgList.sys /= contacts_number - 1;
+    avgList.real /= contacts_number - 1;
+    printTime(avgList, "Average time of adding contact to list book");
 
-    // // measureTime(_sortTreeBook, "Sort contacts in BST book");
-    // // measureTime(_sortListBook, "Sort contacts in list book");
-    // // measureTime(_deleteContactOptTree, "Delete contact in BST book (optimistic case)");
-    // // //measureTime(_deleteContactOptList, "Delete contact in list book (optimistic case)");
-    // // measureTime(_deleteContactPesTree, "Delete contact in BST book (pessimistic case)");
-    // // measureTime(_deleteContactPesList, "Delete contact in list book (pessimistic case)");
-    // // measureTime(_findContactOptTree, "Find contact in BST book (optimistic case)");
-    // // measureTime(_findContactOptList, "Find contact in list book (optimistic case)");
-    // // measureTime(_findContactPesTree, "Find contact in BST book (pessimistic case)");
-    // // measureTime(_findContactPesList, "Find contact in list book (pessimistic case)");
+    measureTime(_sortTreeBook, "Sort contacts in BST book");
+    measureTime(_sortListBook, "Sort contacts in list book");
+    measureTime(_deleteContactOptTree, "Delete contact in BST book (optimistic case)");
+    measureTime(_deleteContactOptList, "Delete contact in list book (optimistic case)");
+    measureTime(_deleteContactPesTree, "Delete contact in BST book (pessimistic case)");
+    measureTime(_deleteContactPesList, "Delete contact in list book (pessimistic case)");
+    measureTime(_findContactOptTree, "Find contact in BST book (optimistic case)");
+    measureTime(_findContactOptList, "Find contact in list book (optimistic case)");
+    measureTime(_findContactPesTree, "Find contact in BST book (pessimistic case)");
+    measureTime(_findContactPesList, "Find contact in list book (pessimistic case)");
     measureTime(_deleteTreeBook, "Delete BST book");
     measureTime(_deleteListBook, "Delete list book");
 
