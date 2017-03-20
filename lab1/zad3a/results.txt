@@ -1,150 +1,75 @@
 Static version
-User: 	  4.000ms	 Real: 	  5.020ms	 System: 	  0.000ms	 Action: Alloc space for and load contacts from .csv
+User: 	  4.000ms	 Real: 	  5.234ms	 System: 	  0.000ms	 Action: Alloc space for and load contacts from .csv
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Create BST book
 User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Create list book
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Add first element to BST book
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Add first element to list book
-User: 	  8.000ms	 Real: 	  8.385ms	 System: 	  0.000ms	 Action: Add all remaining contacts to BST book
-User: 	  4.000ms	 Real: 	  3.166ms	 System: 	  0.000ms	 Action: Add all remaining contats to List book
+User: 	  8.000ms	 Real: 	  8.104ms	 System: 	  0.000ms	 Action: Add all remaining contacts to BST book
+User: 	  4.000ms	 Real: 	  3.240ms	 System: 	  0.000ms	 Action: Add all remaining contats to List book
 User: 	  0.001ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Average time of adding contact to BST book
 User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Average time of adding contact to list book
-User: 	 12.000ms	 Real: 	 12.649ms	 System: 	  0.000ms	 Action: Sort contacts in BST book
-User: 	788.000ms	 Real: 	789.084ms	 System: 	  0.000ms	 Action: Sort contacts in list book
+User: 	 12.000ms	 Real: 	 13.259ms	 System: 	  0.000ms	 Action: Sort contacts in BST book
+User: 	780.000ms	 Real: 	781.403ms	 System: 	  0.000ms	 Action: Sort contacts in list book
 User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Delete contact in BST book (optimistic case)
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Delete contact in list book (optimistic case)
 User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Delete contact in BST book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.918ms	 System: 	  0.000ms	 Action: Delete contact in list book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Find contact in BST book (optimistic case)
+User: 	  4.000ms	 Real: 	  0.953ms	 System: 	  0.000ms	 Action: Delete contact in list book (pessimistic case)
+User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Find contact in BST book (optimistic case)
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Find contact in list book (optimistic case)
 User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Find contact in BST book (pessimistic case)
-User: 	  4.000ms	 Real: 	  0.979ms	 System: 	  0.000ms	 Action: Find contact in list book (pessimistic case)
-User: 	  0.000ms	 Real: 	  3.408ms	 System: 	  0.000ms	 Action: Delete BST book
-User: 	  4.000ms	 Real: 	  3.590ms	 System: 	  0.000ms	 Action: Delete list book
+User: 	  0.000ms	 Real: 	  1.105ms	 System: 	  0.000ms	 Action: Find contact in list book (pessimistic case)
+User: 	  4.000ms	 Real: 	  3.375ms	 System: 	  0.000ms	 Action: Delete BST book
+User: 	  4.000ms	 Real: 	  3.788ms	 System: 	  0.000ms	 Action: Delete list book
 
 
 
 Shared version
-User: 	  4.000ms	 Real: 	  5.114ms	 System: 	  0.000ms	 Action: Alloc space for and load contacts from .csv
+User: 	  4.000ms	 Real: 	  5.058ms	 System: 	  0.000ms	 Action: Alloc space for and load contacts from .csv
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Create BST book
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Create list book
 User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Add first element to BST book
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Add first element to list book
-User: 	  8.000ms	 Real: 	  8.281ms	 System: 	  0.000ms	 Action: Add all remaining contacts to BST book
-User: 	  4.000ms	 Real: 	  3.150ms	 System: 	  0.000ms	 Action: Add all remaining contats to List book
-User: 	  0.001ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Average time of adding contact to BST book
+User: 	  4.000ms	 Real: 	  8.510ms	 System: 	  4.000ms	 Action: Add all remaining contacts to BST book
+User: 	  0.000ms	 Real: 	  3.211ms	 System: 	  4.000ms	 Action: Add all remaining contats to List book
+User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Average time of adding contact to BST book
 User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Average time of adding contact to list book
-User: 	 16.000ms	 Real: 	 18.820ms	 System: 	  0.000ms	 Action: Sort contacts in BST book
-User: 	784.000ms	 Real: 	781.647ms	 System: 	  0.000ms	 Action: Sort contacts in list book
-User: 	  0.000ms	 Real: 	  0.006ms	 System: 	  0.000ms	 Action: Delete contact in BST book (optimistic case)
+User: 	 12.000ms	 Real: 	 13.922ms	 System: 	  0.000ms	 Action: Sort contacts in BST book
+User: 	784.000ms	 Real: 	781.985ms	 System: 	  0.000ms	 Action: Sort contacts in list book
+User: 	  0.000ms	 Real: 	  0.005ms	 System: 	  0.000ms	 Action: Delete contact in BST book (optimistic case)
 User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Delete contact in list book (optimistic case)
 User: 	  0.000ms	 Real: 	  0.003ms	 System: 	  0.000ms	 Action: Delete contact in BST book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.803ms	 System: 	  0.000ms	 Action: Delete contact in list book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Find contact in BST book (optimistic case)
+User: 	  0.000ms	 Real: 	  0.978ms	 System: 	  0.000ms	 Action: Delete contact in list book (pessimistic case)
+User: 	  0.000ms	 Real: 	  0.003ms	 System: 	  0.000ms	 Action: Find contact in BST book (optimistic case)
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Find contact in list book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Find contact in BST book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.815ms	 System: 	  0.000ms	 Action: Find contact in list book (pessimistic case)
-User: 	  4.000ms	 Real: 	  3.735ms	 System: 	  0.000ms	 Action: Delete BST book
-User: 	  0.000ms	 Real: 	  2.496ms	 System: 	  4.000ms	 Action: Delete list book
+User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Find contact in BST book (pessimistic case)
+User: 	  0.000ms	 Real: 	  0.982ms	 System: 	  0.000ms	 Action: Find contact in list book (pessimistic case)
+User: 	  4.000ms	 Real: 	  3.218ms	 System: 	  0.000ms	 Action: Delete BST book
+User: 	  4.000ms	 Real: 	  3.603ms	 System: 	  0.000ms	 Action: Delete list book
 
 
 
 Dynamic version
-User: 	  4.000ms	 Real: 	  5.043ms	 System: 	  0.000ms	 Action: Alloc space for and load contacts from .csv
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Create BST book
-User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Create list book
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Add first element to BST book
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Add first element to list book
-User: 	  8.000ms	 Real: 	  8.154ms	 System: 	  0.000ms	 Action: Add all remaining contacts to BST book
-User: 	  0.000ms	 Real: 	  3.174ms	 System: 	  4.000ms	 Action: Add all remaining contats to List book
-User: 	  0.001ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Average time of adding contact to BST book
-User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Average time of adding contact to list book
-User: 	 12.000ms	 Real: 	 12.930ms	 System: 	  0.000ms	 Action: Sort contacts in BST book
-User: 	780.000ms	 Real: 	779.669ms	 System: 	  0.000ms	 Action: Sort contacts in list book
-User: 	  0.000ms	 Real: 	  0.006ms	 System: 	  0.000ms	 Action: Delete contact in BST book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Delete contact in list book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Delete contact in BST book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.832ms	 System: 	  0.000ms	 Action: Delete contact in list book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Find contact in BST book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Find contact in list book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Find contact in BST book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.878ms	 System: 	  0.000ms	 Action: Find contact in list book (pessimistic case)
-User: 	  8.000ms	 Real: 	  4.977ms	 System: 	  0.000ms	 Action: Delete BST book
-User: 	  4.000ms	 Real: 	  5.534ms	 System: 	  0.000ms	 Action: Delete list book
-
-
-
-Static version
-User: 	  4.000ms	 Real: 	  5.084ms	 System: 	  0.000ms	 Action: Alloc space for and load contacts from .csv
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Create BST book
-User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Create list book
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Add first element to BST book
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Add first element to list book
-User: 	  8.000ms	 Real: 	  7.917ms	 System: 	  0.000ms	 Action: Add all remaining contacts to BST book
-User: 	  4.000ms	 Real: 	  3.146ms	 System: 	  0.000ms	 Action: Add all remaining contats to List book
-User: 	  0.001ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Average time of adding contact to BST book
-User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Average time of adding contact to list book
-User: 	 16.000ms	 Real: 	 18.066ms	 System: 	  0.000ms	 Action: Sort contacts in BST book
-User: 	784.000ms	 Real: 	784.904ms	 System: 	  0.000ms	 Action: Sort contacts in list book
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Delete contact in BST book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Delete contact in list book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.003ms	 System: 	  0.000ms	 Action: Delete contact in BST book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.898ms	 System: 	  0.000ms	 Action: Delete contact in list book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Find contact in BST book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Find contact in list book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Find contact in BST book (pessimistic case)
-User: 	  4.000ms	 Real: 	  0.991ms	 System: 	  0.000ms	 Action: Find contact in list book (pessimistic case)
-User: 	  4.000ms	 Real: 	  3.214ms	 System: 	  0.000ms	 Action: Delete BST book
-User: 	  0.000ms	 Real: 	  3.495ms	 System: 	  0.000ms	 Action: Delete list book
-
-
-
-Shared version
-User: 	  4.000ms	 Real: 	  5.100ms	 System: 	  0.000ms	 Action: Alloc space for and load contacts from .csv
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Create BST book
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Create list book
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Add first element to BST book
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Add first element to list book
-User: 	  8.000ms	 Real: 	  7.913ms	 System: 	  0.000ms	 Action: Add all remaining contacts to BST book
-User: 	  4.000ms	 Real: 	  3.202ms	 System: 	  0.000ms	 Action: Add all remaining contats to List book
-User: 	  0.001ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Average time of adding contact to BST book
-User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Average time of adding contact to list book
-User: 	 12.000ms	 Real: 	 13.925ms	 System: 	  0.000ms	 Action: Sort contacts in BST book
-User: 	780.000ms	 Real: 	779.309ms	 System: 	  0.000ms	 Action: Sort contacts in list book
-User: 	  0.000ms	 Real: 	  0.006ms	 System: 	  0.000ms	 Action: Delete contact in BST book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Delete contact in list book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Delete contact in BST book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.898ms	 System: 	  0.000ms	 Action: Delete contact in list book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Find contact in BST book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Find contact in list book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Find contact in BST book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.955ms	 System: 	  0.000ms	 Action: Find contact in list book (pessimistic case)
-User: 	  4.000ms	 Real: 	  3.226ms	 System: 	  0.000ms	 Action: Delete BST book
-User: 	  4.000ms	 Real: 	  3.558ms	 System: 	  0.000ms	 Action: Delete list book
-
-
-
-Dynamic version
-User: 	  4.000ms	 Real: 	  5.079ms	 System: 	  0.000ms	 Action: Alloc space for and load contacts from .csv
+User: 	  4.000ms	 Real: 	  5.237ms	 System: 	  0.000ms	 Action: Alloc space for and load contacts from .csv
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Create BST book
 User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Create list book
 User: 	  0.000ms	 Real: 	  0.003ms	 System: 	  0.000ms	 Action: Add first element to BST book
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Add first element to list book
-User: 	  4.000ms	 Real: 	  8.704ms	 System: 	  4.000ms	 Action: Add all remaining contacts to BST book
-User: 	  4.000ms	 Real: 	  3.714ms	 System: 	  0.000ms	 Action: Add all remaining contats to List book
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Average time of adding contact to BST book
+User: 	  8.000ms	 Real: 	  8.188ms	 System: 	  0.000ms	 Action: Add all remaining contacts to BST book
+User: 	  4.000ms	 Real: 	  3.180ms	 System: 	  0.000ms	 Action: Add all remaining contats to List book
+User: 	  0.001ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Average time of adding contact to BST book
 User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Average time of adding contact to list book
-User: 	 16.000ms	 Real: 	 17.732ms	 System: 	  4.000ms	 Action: Sort contacts in BST book
-User: 	776.000ms	 Real: 	779.592ms	 System: 	  0.000ms	 Action: Sort contacts in list book
+User: 	 12.000ms	 Real: 	 13.532ms	 System: 	  0.000ms	 Action: Sort contacts in BST book
+User: 	792.000ms	 Real: 	792.695ms	 System: 	  0.000ms	 Action: Sort contacts in list book
 User: 	  0.000ms	 Real: 	  0.006ms	 System: 	  0.000ms	 Action: Delete contact in BST book (optimistic case)
 User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Delete contact in list book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Delete contact in BST book (pessimistic case)
-User: 	  4.000ms	 Real: 	  0.891ms	 System: 	  0.000ms	 Action: Delete contact in list book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Find contact in BST book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.000ms	 System: 	  0.000ms	 Action: Find contact in list book (optimistic case)
-User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Find contact in BST book (pessimistic case)
-User: 	  0.000ms	 Real: 	  0.977ms	 System: 	  0.000ms	 Action: Find contact in list book (pessimistic case)
-User: 	  4.000ms	 Real: 	  3.222ms	 System: 	  0.000ms	 Action: Delete BST book
-User: 	  4.000ms	 Real: 	  3.549ms	 System: 	  0.000ms	 Action: Delete list book
+User: 	  0.000ms	 Real: 	  0.003ms	 System: 	  0.000ms	 Action: Delete contact in BST book (pessimistic case)
+User: 	  4.000ms	 Real: 	  1.401ms	 System: 	  0.000ms	 Action: Delete contact in list book (pessimistic case)
+User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Find contact in BST book (optimistic case)
+User: 	  0.000ms	 Real: 	  0.001ms	 System: 	  0.000ms	 Action: Find contact in list book (optimistic case)
+User: 	  0.000ms	 Real: 	  0.002ms	 System: 	  0.000ms	 Action: Find contact in BST book (pessimistic case)
+User: 	  0.000ms	 Real: 	  1.335ms	 System: 	  0.000ms	 Action: Find contact in list book (pessimistic case)
+User: 	  4.000ms	 Real: 	  4.379ms	 System: 	  0.000ms	 Action: Delete BST book
+User: 	  4.000ms	 Real: 	  4.930ms	 System: 	  0.000ms	 Action: Delete list book
 
 
 

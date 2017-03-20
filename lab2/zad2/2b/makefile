@@ -1,0 +1,17 @@
+CC = gcc
+CFLAGS = -Wall -std=gnu11
+INC = -Ilib
+
+MAIN_FILES = $(wildcard src/*.c)
+OBJ_FILES = $(addprefix bin/, $(notdir $(MAIN_FILES:.c=.o)))
+
+.PHONY: clean
+
+main: $(OBJ_FILES)
+	$(CC) $^ -o $@
+
+bin/%.o: src/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+clean:
+	rm -rf ./bin/*.o main
