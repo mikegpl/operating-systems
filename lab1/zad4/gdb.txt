@@ -51,9 +51,9 @@ Program terminated with signal SIGSEGV, Segmentation fault.
 27	in ../sysdeps/x86_64/multiarch/strcmp-sse2-unaligned.S
 (gdb) up
 #4  0x00000000004014f4 in _addContactsTree () at src/benchmark.c:79
-79	            BST_addContact(treeBook, Contact_copy(contacts[i]));
+79	            BST_addContact(treeBook, Contact_copy(contacts[i]));	// <----------- TUTAJ
 (gdb) list
-74	        List_addContact(listBook, Contact_copy(contacts[0]));  		// <----------- TUTAJ
+74	        List_addContact(listBook, Contact_copy(contacts[0]));  		
 75	    }
 76	
 77	    void _addContactsTree(){
@@ -65,4 +65,4 @@ Program terminated with signal SIGSEGV, Segmentation fault.
 83	        for(int i = 1; i < contacts_number; i++)
 (gdb) 
 
-W tym miejscu (TUTAJ) widać, że problem leży w wywołaniu List_addContact(), a zatem po krótkim śledztwie można znaleźć odpowiedzialny za zrzut błąd.
+W tym miejscu (TUTAJ) widać, że problem leży w wywołaniu BST_addContact(), a zatem po krótkim śledztwie można znaleźć odpowiedzialny za zrzut błąd.
