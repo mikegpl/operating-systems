@@ -1,11 +1,23 @@
 #include <stdio.h>
-
 #include "ioBenchmark.h"
-#include "argParser.h"
 
 int main(int argc, char *argv[]){
-	if(argc > 1){
-		for(int i = 0; i < argc; i++)
-			printf("%s\n", argv[i]);
+	AppData *data = AppData_new();
+	parseArgs(argc, argv, data);
+	switch(data->action){
+		case GENERATE:
+			generate(data);
+			break;
+		case SHUFFLE:
+			shuffle(data);
+			break;
+		case SORT:
+			sort(data);
+			break;
+		default:
+			printf("Error: invalid operation\n");
+			exit(1);
 	}
+
+	AppData_delete(data);
 }

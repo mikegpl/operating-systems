@@ -3,5 +3,6 @@
 
 #include "measureTime.h"
 #include "fileOperations.h"
+#include "argParser.h"
 
 #endif

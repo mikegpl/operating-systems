@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-static const size_t PATH_MAX_LEN = 50;
+static const size_t PATH_MAX_LEN = 256;
 typedef struct AppData AppData;
 struct AppData{
 	char *path;

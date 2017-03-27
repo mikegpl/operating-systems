@@ -1,3 +1,5 @@
+Zadania - zestaw 2
+
 Zadanie 1. Porównanie wydajności systemowych i bibliotecznych funkcji we/wy
 Celem zadania jest napisanie programu porównującego wydajność systemowych i bibliotecznych funkcji wejścia/wyjścia. Program operował będzie na przechowywanej w pliku tablicy rekordów. Pojedynczy rekord będzie tablicą bajtów o stałej wielkości. Nazwa pliku, wielkość oraz ilość rekordów stanowić będą argumenty wywołania programu.
 
@@ -31,8 +33,6 @@ Program należy zaimplementować w dwóch wariantach:
 
 Korzystając z funkcji opendir, readdir oraz funkcji z rodziny stat
 Korzystając z funkcji nftw
-
-
 Zadanie 3. Ryglowanie plików
 Napisz program umożliwiający w trybie interaktywnym (tekstowym) wykonanie następujących operacji dla pliku będącego jego argumentem:
 
@@ -47,4 +47,3 @@ Operacje 1 oraz 2 powinny być dostępne w dwóch wariantach, różniących się
 wersja nieblokująca - próba ustawienia rygla kończy się wypisaniem informacji o błędzie
 wersja blokująca - program czeka, aż ustawienie rygla będzie możliwe
 Wybór znaku we wszystkich przypadkach polega na podaniu numeru bajtu w pliku. Do ryglowania należy wykorzystać funkcję fcntl i strukturę flock. Wykonaj eksperymenty uruchamiając program jednocześnie w dwóch terminalach dla tego samego pliku. Próbuj ryglować (do odczytu lub do zapisu) te same znaki pliku i modyfikować (lub odczytywać) wybrane znaki pliku wykorzystując zarówno blokujące, jak i nieblokujące wersje operacji. Zwróć uwagę, że domyślnie ryglowanie działa w trybie rygli zalecanych (advisory), a nie rygli wymuszanych (mandatory).
-

@@ -1,0 +1,5 @@
+#       TEST 			5
+echo $PATH
+#TEST
+ls -al
+./example

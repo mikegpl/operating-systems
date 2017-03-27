@@ -1,0 +1,131 @@
+Do wygenerowania danych wykorzystano /dev/urandom zamiast /dev/random, ze względu na czas generowania danych. Jak widać w poniższych wynikach:
+- sortowanie przy użyciu funkcji systemowych jest od kilku do kilkunastu procent szybsze
+- dla większości przypadków permutowanie jest szybsze przy użyciu funkcji systemowych, natomiast dla rekordów dużej wielkości (4096, 8192 bajty) korzystniej jest zastosować funkcje biblioteczne
+
+Dataset size - 5000, records size - 4
+Successfully shuffled data in test4a1.bin
+User: 	 4.000000ms	 Real: 20.524170ms	 System 16.000000ms	 Action: lib - shuffle
+
+Dataset size - 5000, records size - 4
+Successfully shuffled data in test4a2.bin
+User: 	 0.000000ms	 Real: 10.310547ms	 System 8.000000ms	 Action: sys - shuffle
+
+Dataset size - 2000, records size - 4
+Successfully shuffled data in test4b1.bin
+User: 	 0.000000ms	 Real: 5.615479ms	 System 4.000000ms	 Action: lib - shuffle
+
+Dataset size - 2000, records size - 4
+Successfully shuffled data in test4b2.bin
+User: 	 0.000000ms	 Real: 4.110840ms	 System 4.000000ms	 Action: sys - shuffle
+
+Dataset size - 5000, records size - 512
+Successfully shuffled data in test512a1.bin
+User: 	 4.000000ms	 Real: 16.098633ms	 System 12.000000ms	 Action: lib - shuffle
+
+Dataset size - 5000, records size - 512
+Successfully shuffled data in test512a2.bin
+User: 	 0.000000ms	 Real: 17.250244ms	 System 16.000000ms	 Action: sys - shuffle
+
+Dataset size - 2000, records size - 512
+Successfully shuffled data in test512b1.bin
+User: 	 0.000000ms	 Real: 7.109131ms	 System 4.000000ms	 Action: lib - shuffle
+
+Dataset size - 2000, records size - 512
+Successfully shuffled data in test512b2.bin
+User: 	 0.000000ms	 Real: 6.654297ms	 System 4.000000ms	 Action: sys - shuffle
+
+Dataset size - 5000, records size - 4096
+Successfully shuffled data in test4096a1.bin
+User: 	 0.000000ms	 Real: 17.597412ms	 System 16.000000ms	 Action: lib - shuffle
+
+Dataset size - 5000, records size - 4096
+Successfully shuffled data in test4096a2.bin
+User: 	 0.000000ms	 Real: 16.360596ms	 System 16.000000ms	 Action: sys - shuffle
+
+Dataset size - 2000, records size - 4096
+Successfully shuffled data in test4096b1.bin
+User: 	 0.000000ms	 Real: 6.584473ms	 System 4.000000ms	 Action: lib - shuffle
+
+Dataset size - 2000, records size - 4096
+Successfully shuffled data in test4096b2.bin
+User: 	 0.000000ms	 Real: 6.200684ms	 System 4.000000ms	 Action: sys - shuffle
+
+Dataset size - 5000, records size - 8192
+Successfully shuffled data in test8192a1.bin
+User: 	 0.000000ms	 Real: 29.018555ms	 System 28.000000ms	 Action: lib - shuffle
+
+Dataset size - 5000, records size - 8192
+Successfully shuffled data in test8192a2.bin
+User: 	 0.000000ms	 Real: 28.099854ms	 System 28.000000ms	 Action: sys - shuffle
+
+Dataset size - 2000, records size - 8192
+Successfully shuffled data in test8192b1.bin
+User: 	 0.000000ms	 Real: 11.148926ms	 System 8.000000ms	 Action: lib - shuffle
+
+Dataset size - 2000, records size - 8192
+Successfully shuffled data in test8192b2.bin
+User: 	 4.000000ms	 Real: 14.632568ms	 System 8.000000ms	 Action: sys - shuffle
+
+Dataset size - 5000, records size - 4
+Successfully sorted data in test4a1.bin
+User: 	 1880.000000ms	 Real: 7988.703613ms	 System 6104.000000ms	 Action: lib - sort
+
+Dataset size - 5000, records size - 4
+Successfully sorted data in test4a2.bin
+User: 	 1080.000000ms	 Real: 7162.081299ms	 System 6080.000000ms	 Action: sys - sort
+
+Dataset size - 2000, records size - 4
+Successfully sorted data in test4b1.bin
+User: 	 368.000000ms	 Real: 1264.828369ms	 System 896.000000ms	 Action: lib - sort
+
+Dataset size - 2000, records size - 4
+Successfully sorted data in test4b2.bin
+User: 	 152.000000ms	 Real: 1202.556152ms	 System 1048.000000ms	 Action: sys - sort
+
+Dataset size - 5000, records size - 512
+Successfully sorted data in test512a1.bin
+User: 	 1912.000000ms	 Real: 9198.476318ms	 System 7284.000000ms	 Action: lib - sort
+
+Dataset size - 5000, records size - 512
+Successfully sorted data in test512a2.bin
+User: 	 1008.000000ms	 Real: 7168.466553ms	 System 6160.000000ms	 Action: sys - sort
+
+Dataset size - 2000, records size - 512
+Successfully sorted data in test512b1.bin
+User: 	 320.000000ms	 Real: 1548.144043ms	 System 1228.000000ms	 Action: lib - sort
+
+Dataset size - 2000, records size - 512
+Successfully sorted data in test512b2.bin
+User: 	 156.000000ms	 Real: 1251.865479ms	 System 1096.000000ms	 Action: sys - sort
+
+Dataset size - 5000, records size - 4096
+Successfully sorted data in test4096a1.bin
+User: 	 2368.000000ms	 Real: 13522.899902ms	 System 11152.000000ms	 Action: lib - sort
+
+Dataset size - 5000, records size - 4096
+Successfully sorted data in test4096a2.bin
+User: 	 1028.000000ms	 Real: 8010.520752ms	 System 6980.000000ms	 Action: sys - sort
+
+Dataset size - 2000, records size - 4096
+Successfully sorted data in test4096b1.bin
+User: 	 344.000000ms	 Real: 2164.313477ms	 System 1820.000000ms	 Action: lib - sort
+
+Dataset size - 2000, records size - 4096
+Successfully sorted data in test4096b2.bin
+User: 	 216.000000ms	 Real: 1462.809326ms	 System 1244.000000ms	 Action: sys - sort
+
+Dataset size - 5000, records size - 8192
+Successfully sorted data in test8192a1.bin
+User: 	 2268.000000ms	 Real: 13950.286133ms	 System 11680.000000ms	 Action: lib - sort
+
+Dataset size - 5000, records size - 8192
+Successfully sorted data in test8192a2.bin
+User: 	 956.000000ms	 Real: 8438.247070ms	 System 7480.000000ms	 Action: sys - sort
+
+Dataset size - 2000, records size - 8192
+Successfully sorted data in test8192b1.bin
+User: 	 368.000000ms	 Real: 2457.247559ms	 System 2084.000000ms	 Action: lib - sort
+
+Dataset size - 2000, records size - 8192
+Successfully sorted data in test8192b2.bin
+User: 	 152.000000ms	 Real: 1470.709229ms	 System 1316.000000ms	 Action: sys - sort

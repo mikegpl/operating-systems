@@ -16,10 +16,16 @@ static int fileCounter = 0;
 
 int main(int argc, char *argv[]){
 	AppData* data = AppData_new();
+	char *buffer = malloc(PATH_MAX);
 	parse(argc, argv, data);
-	listFiles(data->path, data->fileSize);
+	chdir(data->path);
+	getcwd(buffer, PATH_MAX);
+	
+	listFiles(buffer, data->fileSize);
+
 	printf("Files found: %d\n", fileCounter);
 	AppData_delete(data);
+	free(buffer);
 	return 0;
 }
 
@@ -31,7 +37,7 @@ void listFiles(char *path, long fileSize){
 
 	DIR *root = opendir(path);
 	if(!root){
-		fprintf(stderr, "Cannot open directory '%s': %s\n", path, strerror (errno));
+		fprintf(stderr, "Cannot open directory '%s': %s\n", filePath, strerror (errno));
 		return;
 	}
 

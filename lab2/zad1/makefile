@@ -12,13 +12,19 @@ OBJ_FILES = $(addprefix bin/, $(notdir $(LIB_FILES:.c=.o)))
 all: static
 	$(CC) $(CFLAGS) $(INC) $(MAIN_FILES) -L. -l$(LIBRARY_NAME) -o main
 
+measurement: benchmark all
+	./measure.sh
+
+benchmark: static
+	$(CC) $(CFLAGS) $(INC) benchmark.c -L. -l$(LIBRARY_NAME) -o benchmark
+
 static: lib$(LIBRARY_NAME).a
 
 lib$(LIBRARY_NAME).a: $(OBJ_FILES)
 	ar crs $@ $^
 
 bin/%.o: lib/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-		rm -rf ./bin/*.o *.a main
+		rm -rf ./bin/*.o *.a main benchmark

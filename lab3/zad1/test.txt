@@ -1,0 +1,7 @@
+#       TEST 			5
+./example TEST
+#TEST
+./example TEST
+ls -al
+echo $PATH
+#TEST
