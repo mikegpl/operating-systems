@@ -23,7 +23,7 @@ static rlimit timeLimit = {RLIMIT_CPU};
 
 void interpretFile(char *source);
 void getResourceLimits(int argc, char *argv[]);
-static void setResourceLimits();
+void setResourceLimits();
 void execLine(char *line, int length);
 ssize_t fileGetLine(char **linePtr, ssize_t *lineLen, FILE *file);
 EnvVarAction parseEnvCommand(char *line);
