@@ -15,5 +15,5 @@ void processLine(char *line, ssize_t length);
 Command *parseCommand(char *line);
 Command *Command_new();
 void Command_delete(Command *cmd);
-pid_t executeCmd(int in, int out, Command *command);
+void executeCmd(int index, int in, int out, Command *command);
 #endif

@@ -19,6 +19,7 @@ int main(int argc, char *argv[]){
     char *line = NULL;
     size_t size = 0;
     while(1){
+        printf("Enter next pipe/commandd chain\n");
         ssize_t charsRead = getline(&line, &size, stdin);
         if(charsRead != -1){
             processLine(line, charsRead);
@@ -29,8 +30,6 @@ int main(int argc, char *argv[]){
                 free(line);
             exit(0);
         }
-        printf("\nChars read %li\n", charsRead);
-        printf("Size %li\n", size);
     }
     return 0;
 }
@@ -50,22 +49,21 @@ void processLine(char *line, ssize_t length){
         cmdArray[i] = parseCommand(lineArray[i]);
     }
 
-    int toNextCmd[2];
-    int in = SOURCE;
-    for (int i = 0; i < cmdCount - 1; i++){
-        pipe(toNextCmd);
-        executeCmd(in, toNextCmd[1], cmdArray[i]);
-        close(toNextCmd[TARGET]);
-        in = toNextCmd[SOURCE];
-    }
-
-    if(in != SOURCE){
-        dup2(in, SOURCE);
-        close(in);
+    int pipeLine[2];
+    int in = STDIN_FILENO;
+    for(int i = 0; i < cmdCount -1; i++){
+        pipe(pipeLine);
+        executeCmd(i, in, pipeLine[TARGET], cmdArray[i]);
+        close(pipeLine[TARGET]);
+        in = pipeLine[SOURCE];
     }
 
     pid_t last = fork();
     if(last == 0){
+        if(in != STDIN_FILENO){
+            dup2(in, STDIN_FILENO);
+            close(in);
+        }
         execvp(cmdArray[cmdCount-1]->cmd, cmdArray[cmdCount-1]->argv);
     }
     else{
@@ -73,35 +71,42 @@ void processLine(char *line, ssize_t length){
         wait(&status);
     }
 
-
     for(int i = 0; i < cmdCount; i++)
         Command_delete(cmdArray[i]);
     free(cmdArray);
     free(lineArray);
 }
 
-pid_t executeCmd(int in, int out, Command *command){
+void executeCmd(int index, int in, int out, Command *command){
     assert(command != NULL);
     pid_t pid = fork();
     if(pid == 0){
-        if(in != SOURCE){
-            dup2(in, SOURCE);
-            close(in);
+        if(index == 0){
+            if(out != STDOUT_FILENO){
+                dup2(out, STDOUT_FILENO);
+                close(out);
+            }
         }
-        if(out != TARGET){
-            dup2(out, TARGET);
-            close(out);
+        else{
+            if(in != STDIN_FILENO) {
+                dup2(in, STDIN_FILENO);
+                close(in);
+            }
+            if(out != STDOUT_FILENO){
+                dup2(out, STDOUT_FILENO);
+                close(out);
+            }
         }
         if(execvp(command->cmd, command->argv) == -1){
             fprintf(stderr, "Could not execute command '%s': %s\n", command->cmd, strerror(errno));
             exit(1);
         }
+        
     }
     else{
         int status;
         wait(&status);
     }
-    return pid;
 }
 
 Command *parseCommand(char *line){
