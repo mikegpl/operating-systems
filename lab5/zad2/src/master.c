@@ -3,39 +3,21 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
-
-int stringToInt(char *number);
-double stringToDouble(char *number);
-int **int2DArray_new(int rows, int cols);
-void int2DArray_delete(int **array, int rows);
-void printArray(int **array, int rows, int cols);
-void processLine(char *line, int **array, int res);
-int getXcoord(double position, int resolution);
-int getYcoord(double position, int resolution);
-
-
-static const char *INVALID_ARGNUM = "Incorrect number of arguments.\nUse ./master --help for usage";
-static const char *INVALID_PATH = "Entered incorrect path to pipe file";
-static const char *ERROR_PIPE = "Error while opening named pipe";
-static const char *ERROR_BAD_ALLOC = "Error while allocating memory for array";
-static const char *ERROR_STR_DOUBLE = "Error while converting string to double";
-static const char *ERROR_STR_INT = "Error while converting string to int";
-static const char *USAGE = "./master pathToPipe resolution\n(string, int >= 0";
-
-static const char *WSPACE_DELIMITERS = " \n\t";
-static const double REAL_MIN = -2.0;
-static const double REAL_MAX = 1.0;
-static const double IMAG_MIN = -1.0;
-static const double IMAG_MAX = 1.0;
+#include "master.h"
 
 static int correctlyRead = 0;
+static const char *gOpts[4] = {"set view map", 
+								  "set xrange", 
+								  "set yrange", 
+								  "plot 'data' with image"};
 
 int main(int argc, char *argv[]){
+	// Parse args
 	if(argc == 2 && strcmp("--help", argv[1]) == 0){
 		printf("%s\n", USAGE);
 		exit(0);
 	}
-	else if(argc < 3 || argc > 3){
+	else if(argc != 3){
 		printf("%s\n", INVALID_ARGNUM);
 		exit(1);
 	}
@@ -44,29 +26,54 @@ int main(int argc, char *argv[]){
 		fprintf(stderr, "%s\n", INVALID_PATH);
 		exit(1);
 	}		
+
+
 	int **T = int2DArray_new(res, res);
+	
 	FILE *pipe;
-	pipe = fopen("pipe.p", "r");
+	pipe = fopen(argv[1], "r");
 	if(pipe == NULL){
 		fprintf(stderr, "%s\n", ERROR_PIPE);
 		exit(1);
 	}
+
 	char line[64];
 	while(fgets(line, 64, pipe)){
 		processLine(line, T, res);
 	}
 	fclose(pipe);
 
-	for(int i = 0; i < res; i++){
-		for(int j = 0; j < res; j++)
-			printf("%d %d %d\n", i, j, T[i][j]);
+	fprintf(stderr, "Correctly read %d\n", correctlyRead);
+
+	FILE *data;
+	data = fopen(TARGET_FILE, "a");
+	if(data == NULL){
+		fprintf(stderr, "%s\n", ERROR_TARGET);
+		exit(1);
 	}
 
-	// save to 'data', popen gnuplot, fflush, getkey
+	for(int i = 0; i < res; i++){
+		for(int j = 0; j < res; j++){
+			fprintf(data, "%d %d %d\n", i, j, T[i][j]);
+		}
+	}
+	fclose(data);
 
+	FILE *gplotPipe = popen("gnuplot", "w");
+	if(gplotPipe == NULL){
+		fprintf(stderr, "%s\n", ERROR_POPEN);
+		exit(1);
+	}
+	fprintf(gplotPipe, "%s\n%s[0:%d]\n%s[0:%d]\n%s\n", gOpts[0], gOpts[1], res, gOpts[2], res, gOpts[3]);
+	
+	fflush(gplotPipe);
+	printf("Press [ENTER] to exit\n");
+	getchar();
+
+	pclose(gplotPipe);	
+	remove(TARGET_FILE);
 	unlink(argv[1]);
 	int2DArray_delete(T, res);
-	fprintf(stderr, "Correctly read %d\n", correctlyRead);
 	return 0;
 
 	

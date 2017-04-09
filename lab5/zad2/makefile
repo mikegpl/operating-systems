@@ -4,6 +4,7 @@ CFLAGS = -Wall -std=gnu11
 MAIN_FILES = $(wildcard src/*.c)
 EXEC_FILES = $(notdir $(MAIN_FILES:.c=))
 OBJ_FILES = $(addprefix bin/, $(notdir $(MAIN_FILES:.c=.o)))
+RES_FILES = *.p data
 
 .PHONY: clean
 
@@ -19,4 +20,4 @@ bin/%.o: src/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf ./bin/*.o $(EXEC_FILES) *.p
+	rm -rf ./bin/*.o $(EXEC_FILES) $(RES_FILES)
