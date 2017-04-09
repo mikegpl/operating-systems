@@ -4,25 +4,18 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/wait.h>
-
 #include "executor.h"
-
-static const int MAX_CMD_COUNT = 20;
-static const int MAX_ARGV_LEN = 5;
-static const char *PIPE_DELIMITER = "|";
-static const char *WSPACE_DELIMITER = " \n\t";
-static const char *ERROR_INVALID_PIPE= "Entered incorrect combination of commands and pipe signs";
 
 int main(int argc, char *argv[]){
     char *line = NULL;
     size_t size = 0;
     while(1){
-        printf("Enter next pipe/commandd chain\n");
+        printf("Enter next pipe/commandd chain. Enter EOF to exit\n\n");
         ssize_t charsRead = getline(&line, &size, stdin);
         if(charsRead != -1){
             processLine(line, charsRead);
+            printf("\n");
         }
         else{
             printf("Finished reading lines from stdin\n");
