@@ -9,6 +9,9 @@ void printArray(int **array, int rows, int cols);
 void processLine(char *line, int **array, int res);
 int getXcoord(double position, int resolution);
 int getYcoord(double position, int resolution);
+void arrayToFile(int **array, int m, int n, const char *fileName);
+void readFromPipe(int **array, char *fileName, int res);
+void drawGnuplot(int res);
 
 static const char *INVALID_ARGNUM = "Incorrect number of arguments.\nUse ./master --help for usage";
 static const char *INVALID_PATH = "Entered incorrect path to pipe file";

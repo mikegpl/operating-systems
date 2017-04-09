@@ -6,10 +6,6 @@
 #include "master.h"
 
 static int correctlyRead = 0;
-static const char *gOpts[4] = {"set view map", 
-								  "set xrange", 
-								  "set yrange", 
-								  "plot 'data' with image"};
 
 int main(int argc, char *argv[]){
 	// Parse args
@@ -26,57 +22,17 @@ int main(int argc, char *argv[]){
 		fprintf(stderr, "%s\n", INVALID_PATH);
 		exit(1);
 	}		
-
-
+	
 	int **T = int2DArray_new(res, res);
+
+	readFromPipe(T, argv[1], res);
+	arrayToFile(T, res, res, TARGET_FILE);
+	drawGnuplot(res);
 	
-	FILE *pipe;
-	pipe = fopen(argv[1], "r");
-	if(pipe == NULL){
-		fprintf(stderr, "%s\n", ERROR_PIPE);
-		exit(1);
-	}
-
-	char line[64];
-	while(fgets(line, 64, pipe)){
-		processLine(line, T, res);
-	}
-	fclose(pipe);
-
-	fprintf(stderr, "Correctly read %d\n", correctlyRead);
-
-	FILE *data;
-	data = fopen(TARGET_FILE, "a");
-	if(data == NULL){
-		fprintf(stderr, "%s\n", ERROR_TARGET);
-		exit(1);
-	}
-
-	for(int i = 0; i < res; i++){
-		for(int j = 0; j < res; j++){
-			fprintf(data, "%d %d %d\n", i, j, T[i][j]);
-		}
-	}
-	fclose(data);
-
-	FILE *gplotPipe = popen("gnuplot", "w");
-	if(gplotPipe == NULL){
-		fprintf(stderr, "%s\n", ERROR_POPEN);
-		exit(1);
-	}
-	fprintf(gplotPipe, "%s\n%s[0:%d]\n%s[0:%d]\n%s\n", gOpts[0], gOpts[1], res, gOpts[2], res, gOpts[3]);
-	
-	fflush(gplotPipe);
-	printf("Press [ENTER] to exit\n");
-	getchar();
-
-	pclose(gplotPipe);	
 	remove(TARGET_FILE);
 	unlink(argv[1]);
 	int2DArray_delete(T, res);
-	return 0;
-
-	
+	return 0;	
 }
 
 int stringToInt(char *number){
@@ -165,4 +121,55 @@ int getYcoord(double position, int resolution){
 	position -= IMAG_MIN;
 	int yCoord = (int) ((position / rangeY) * resolution);
 	return yCoord; 
+}
+
+void arrayToFile(int **array, int m, int n, const char *fileName){
+	FILE *data;
+	data = fopen(fileName, "a");
+	if(data == NULL){
+		fprintf(stderr, "%s\n", ERROR_TARGET);
+		exit(1);
+	}
+
+	for(int i = 0; i < m; i++){
+		for(int j = 0; j < n; j++){
+			fprintf(data, "%d %d %d\n", i, j, array[i][j]);
+		}
+	}
+	fclose(data);
+}
+
+void readFromPipe(int **array, char *fileName, int res){
+	FILE *pipe;
+	pipe = fopen(fileName, "r");
+	if(pipe == NULL){
+		fprintf(stderr, "%s\n", ERROR_PIPE);
+		exit(1);
+	}
+
+	char line[64];
+	while(fgets(line, 64, pipe)){
+		processLine(line, array, res);
+	}
+	fclose(pipe);
+	fprintf(stderr, "Correctly read %d\n", correctlyRead);
+}
+
+void drawGnuplot(int res){
+	const char *gOpts[4] = {"set view map", 
+						    "set xrange", 
+					        "set yrange", 
+				            "plot 'data' with image"};
+	FILE *gplotPipe = popen("gnuplot", "w");
+	if(gplotPipe == NULL){
+		fprintf(stderr, "%s\n", ERROR_POPEN);
+		exit(1);
+	}
+	fprintf(gplotPipe, "%s\n%s[0:%d]\n%s[0:%d]\n%s\n", gOpts[0], gOpts[1], res, gOpts[2], res, gOpts[3]);
+	
+	fflush(gplotPipe);
+	printf("Press [ENTER] to exit\n");
+	getchar();
+
+	pclose(gplotPipe);	
 }
