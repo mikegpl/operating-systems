@@ -15,7 +15,6 @@ int getYcoord(double position, int resolution);
 
 
 static const char *INVALID_ARGNUM = "Incorrect number of arguments.\nUse ./master --help for usage";
-static const char *INVALID_NUMBER = "Entered illegal number as one of arguments";
 static const char *INVALID_PATH = "Entered incorrect path to pipe file";
 static const char *ERROR_PIPE = "Error while opening named pipe";
 static const char *ERROR_BAD_ALLOC = "Error while allocating memory for array";
@@ -41,10 +40,10 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 	int res = stringToInt(argv[2]);
-	// if(access(argv[1], F_OK) == -1){
-		// fprintf(stderr, "%s\n", INVALID_PATH);
-		// exit(1);
-	// }		
+	if(access(argv[1], F_OK) == -1){
+		fprintf(stderr, "%s\n", INVALID_PATH);
+		exit(1);
+	}		
 	int **T = int2DArray_new(res, res);
 	FILE *pipe;
 	pipe = fopen("pipe.p", "r");
@@ -53,7 +52,6 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 	char line[64];
-	int i =0;
 	while(fgets(line, 64, pipe)){
 		processLine(line, T, res);
 	}
@@ -63,6 +61,8 @@ int main(int argc, char *argv[]){
 		for(int j = 0; j < res; j++)
 			printf("%d %d %d\n", i, j, T[i][j]);
 	}
+
+	// save to 'data', popen gnuplot, fflush, getkey
 
 	unlink(argv[1]);
 	int2DArray_delete(T, res);
@@ -129,33 +129,17 @@ void printArray(int **array, int rows, int cols){
 }
 
 void processLine(char *line, int **array, int res){
-	char testo[256];
-	strcpy(testo, line);
-	if(testo == NULL)
-		return;
+	assert(line != NULL);
+	assert(array != NULL);
 	char *cols[3];
-	cols[0] = strtok(testo, WSPACE_DELIMITERS);
-	if(cols[0] == NULL){
-		return;
-		printf("First col was null\n");
-		printf("%s\n", line);
-	}
+	cols[0] = strtok(line, WSPACE_DELIMITERS);
 	cols[1] = strtok(NULL, WSPACE_DELIMITERS);
-	if(cols[1] == NULL){
-		return;
-		printf("Second col was null\n");
-		printf("%s\n", line);
-	}
 	cols[2] = strtok(NULL, WSPACE_DELIMITERS);
-	if(cols[2] == NULL){
-		return;
-		printf("Last col ws null\n");
-		printf("%s\n", line);
-	}
 
 	double real = stringToDouble(cols[0]);
 	double imag = stringToDouble(cols[1]);
 	int iters = stringToInt(cols[2]);
+
 	int x = getXcoord(real, res);
 	int y = getYcoord(imag, res);
 	array[x][y] = iters;
