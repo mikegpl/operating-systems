@@ -4,9 +4,9 @@
 typedef struct Point Point;
 struct Point
 {
-	double re;
-	double im;
-	int iters;
+    double re;
+    double im;
+    int iters;
 };
 
 int argvToInt(int position, char *number);

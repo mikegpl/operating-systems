@@ -11,14 +11,14 @@ typedef struct AppData AppData;
 typedef struct rusage rusage;
 
 struct Command{
-	char *cmd;
-	char **argv;
+    char *cmd;
+    char **argv;
 };
 
 struct EnvVarAction{
-	char type;
-	char *varName;
-	char *varValue;
+    char type;
+    char *varName;
+    char *varValue;
 };
 
 #endif

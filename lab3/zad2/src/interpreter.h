@@ -12,14 +12,14 @@ typedef struct rusage rusage;
 typedef struct rlimit rlimit;
 
 struct Command{
-	char *cmd;
-	char **argv;
+    char *cmd;
+    char **argv;
 };
 
 struct EnvVarAction{
-	char type;
-	char *varName;
-	char *varValue;
+    char type;
+    char *varName;
+    char *varValue;
 };
 
 #endif
