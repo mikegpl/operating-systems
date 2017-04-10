@@ -16,3 +16,4 @@ bin/%.o: src/%.c
 
 clean:
 	rm -rf ./bin/*.o main
+	./killer.sh
