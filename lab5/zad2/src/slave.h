@@ -11,7 +11,7 @@ struct Point
 
 int argvToInt(int position, char *number);
 Point getPoint(int itersLimit);
-double getRandomAtoB(int a, int b);
+double getRandomAtoB(double a, double b);
 int getIters(double real, double im, int itersLimit);
 
 static const char *INVALID_ARGNUM = "Incorrect number of arguments.\nUse ./slave --help for usage";

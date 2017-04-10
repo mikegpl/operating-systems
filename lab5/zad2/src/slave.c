@@ -62,7 +62,7 @@ Point getPoint(int itersLimit){
     return point;
 }
 
-double getRandomAtoB(int a, int b){
+double getRandomAtoB(double a, double b){
     double result = ((double) rand() / (double) RAND_MAX) * (b - a) + a;  
     return result;
 }
