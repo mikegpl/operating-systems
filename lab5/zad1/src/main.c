@@ -46,7 +46,7 @@ void processLine(char *line, ssize_t length){
     int in = STDIN_FILENO;
     for(int i = 0; i < cmdCount -1; i++){
         pipe(pipeLine);
-        executeCmd(i, in, pipeLine[TARGET], cmdArray[i]);
+        executeCmd(in, pipeLine[TARGET], cmdArray[i]);
         close(pipeLine[TARGET]);
         in = pipeLine[SOURCE];
     }
@@ -70,26 +70,19 @@ void processLine(char *line, ssize_t length){
     free(lineArray);
 }
 
-void executeCmd(int index, int in, int out, Command *command){
+void executeCmd(int in, int out, Command *command){
     assert(command != NULL);
     pid_t pid = fork();
     if(pid == 0){
-        if(index == 0){
-            if(out != STDOUT_FILENO){
-                dup2(out, STDOUT_FILENO);
-                close(out);
-            }
+        if(in != STDIN_FILENO) {
+            dup2(in, STDIN_FILENO);
+            close(in);
         }
-        else{
-            if(in != STDIN_FILENO) {
-                dup2(in, STDIN_FILENO);
-                close(in);
-            }
-            if(out != STDOUT_FILENO){
-                dup2(out, STDOUT_FILENO);
-                close(out);
-            }
+        if(out != STDOUT_FILENO){
+            dup2(out, STDOUT_FILENO);
+            close(out);
         }
+
         if(execvp(command->cmd, command->argv) == -1){
             fprintf(stderr, "Could not execute command '%s': %s\n", command->cmd, strerror(errno));
             exit(1);

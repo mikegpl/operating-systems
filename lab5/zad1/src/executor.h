@@ -15,7 +15,7 @@ void processLine(char *line, ssize_t length);
 Command *parseCommand(char *line);
 Command *Command_new();
 void Command_delete(Command *cmd);
-void executeCmd(int index, int in, int out, Command *command);
+void executeCmd(int in, int out, Command *command);
 
 static const int MAX_CMD_COUNT = 20;
 static const int MAX_ARGV_LEN = 5;
