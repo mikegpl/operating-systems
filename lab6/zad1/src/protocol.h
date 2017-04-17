@@ -1,13 +1,13 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
-#define MAX_CLIENTS 2
+#define MAX_CLIENTS 8
 #define MAX_MSG_LEN 64
 #define QUEUE_ACCESS 0666
 
 typedef enum MessageType
 {
-	LOGIN = 1, LOGOUT = 2, ACK, NACK, ECHO, UPPER, TIME, TERMINATE
+	LOGIN = 1, LOGOUT, ACK, NACK, ECHO, UPPER, TIME, TERMINATE
 } MessageType;
 
 typedef struct Message
