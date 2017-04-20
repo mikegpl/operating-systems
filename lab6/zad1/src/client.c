@@ -109,7 +109,7 @@ int connectToServer(){
     return clientID;
 }
 
-
+// todo -> bsd_queueReceive
 void receiveMessage(int qid, Message *msg){
     if(msgrcv(qid, msg, MESSAGE_SIZE, 0, 0) == -1) {
     	fprintf(stderr, "msgrcv error: %s\n", strerror(errno));
@@ -161,6 +161,7 @@ void parseLine(char *line, ssize_t lineLength, Message *msg){
 }
 
 
+// todo -> queueSend
 void sendToServer(Message *msg, MessageType expectedType){
 	int awaitResponse = 0;
 	switch(msg->type){
@@ -199,7 +200,7 @@ int stringToInt(char *number){
     int value = (int) strtol(number, &stopAt, 10);
     if(number == stopAt || value < 0){
         printf("Error while parsing str to int\n");
-        safeExit(1);
+        exit(1);
     }
     return value;
 }

@@ -20,4 +20,3 @@ bin/%.o: src/%.c
 
 clean:
 	rm -rf ./bin/*.o $(EXEC_FILES)
-	# ./anton.sh

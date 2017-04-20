@@ -1,69 +1,110 @@
-#include <mqueue.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include "server.h"
 
+mqd_t myQueue;
+int clientsCount, idCount, shutdown;
+pid_t clientPids[MAX_CLIENTS];
 mqd_t clientQueues[MAX_CLIENTS];
-int clientIDs[MAX_CLIENTS];
-int clientCount, currentID;
-int shutdown;
 
-int main(int argc, char const *argv[]){
-	struct mq_attr attr;
-	attr.mq_flags = 0;
-	attr.mq_maxmsg = 10;
-	attr.mq_msgsize = MAX_MSG_LEN;
-	attr.mq_curmsgs = 0;
-	shutdown = 0;
-	
+int main(int argc, char *argv[]){
 	printf("Server\n");
-	mqd_t queue = mq_open(SERVER_QUEUE, O_CREAT | O_RDONLY, QUEUE_ACCESS, &attr); // returns -1 on error
-	char buffer[MAX_MSG_LEN+1];
+	mqd_t myQueue = queueOpen(SERVER_NAME, 'r');
+	shutdown = clientsCount = idCount = 0;	
+	Message msg;
 	while(!shutdown){
-		sleep(1);
-		ssize_t bytesRead;
-		if((bytesRead = mq_receive(queue, buffer, MAX_MSG_LEN, 0)) == -1){
-			fprintf(stderr, "mq_receive error: %s\n", strerror(errno));
-		}
-		processMessage(buffer, bytesRead);
-		printf("Outside: %s\n", buffer);
+		processMessage(queueReceive(myQueue, &msg));
 	}
-	mq_close(queue); // returns -1 on error
-	return 0;
+
+	for(int i = 0; i < clientsCount; i++)
+		queueClose(clientQueues[i]);
+	queueClose(myQueue);
+    return 0;
 }
 
-void processMessage(char *buffer, ssize_t bufferLength){
-	if(bufferLength < 2){
-		fprintf(stderr, "%s\n", ERROR_MSG_LEN);
+void processMessage(Message *msg){
+	if(NULL != msg){
+		switch(msg->type){
+			case LOGIN:
+				handleLogin(msg);
+			break;
+			default:
+				printf("Type %d, contents: %s", (int) msg->type, msg->contents);
+				if(strncmp(msg->contents, "xD", 2) == 0)
+					shutdown = 1;
+			break;
+		}
 	}
-	MessageType type = (int) buffer[0];
-	switch(type){
-		case LOGIN:
-			printf("LOGIN\n");
-			break;
-		case LOGOUT:
-			printf("LOGOUT\n");
-			break;
-		case ECHO:
-			printf("ECHO\n");
-			break;
-		case UPPER:
-			printf("UPPER\n");
-			break;
-		case TIME:
-			printf("TIME\n");
-			break;
-		case TERMINATE:
-			printf("TERMINATE\n");
-			shutdown = 1;
-			break;
+}
+
+
+
+// pack procedures below into lib
+void handleLogin(Message *msg){
+	mqd_t clientQueue = queueOpen(msg->contents, 'w');
+	if(clientsCount < MAX_CLIENTS){
+		clientPids[clientsCount] = msg->originpid;
+		clientQueues[clientsCount] = clientQueue;
+		clientsCount++;
+		msg->type = ACK;
+		msg->originpid = getpid();
+		sprintf(msg->contents, "%d", idCount++);
+		queueSend(clientQueue, msg);
+	}
+	else{
+		msg->type = NACK;
+		msg->originpid = getpid();
+		strcpy(msg->contents, SERVER_FULL);
+		queueSend(clientQueue, msg);
+		queueClose(clientQueue);
+	}
+	strcpy(msg->contents, "Opened client's queue");
+}
+
+void queueSend(mqd_t queue, Message *msg){
+	if(-1 == (mq_send(queue, msg, MESSAGE_SIZE, 0))){
+		fprintf(stderr, "%s\n", ERROR_MQ_SEND);
+	}
+}
+
+Message *queueReceive(mqd_t queue, Message *msg){
+	if(-1 == (mq_receive(queue, msg, MESSAGE_SIZE, 0))){
+		fprintf(stderr, "%s\n", ERROR_MQ_RECV);
+		exit(1);
+	}
+	return msg;
+}
+
+mqd_t queueOpen(const char *name, char mode){
+	mqd_t queue;
+	struct mq_attr attr;
+	attr.mq_flags = 0;
+	attr.mq_maxmsg = MSGS_LIMIT;
+	attr.mq_msgsize = MESSAGE_SIZE;
+	attr.mq_curmsgs = 0;
+
+	switch(mode){
+		case 'r':
+			if(-1 == (queue = mq_open(name, O_CREAT | O_RDONLY, ACCESS_RIGHTS, &attr))){
+				fprintf(stderr, "%s\n", ERROR_MQ_OPEN);
+				exit(1);
+			}
+		break;
+		case 'w':
+			if(-1 == (queue = mq_open(name, O_WRONLY))){
+				fprintf(stderr, "%s\n", ERROR_MQ_OPEN);
+				exit(1);
+			}
+		break;
 		default:
-			printf("Received illegal cmd\n");
-			break;
+			fprintf(stderr, "Creating queue: %s\n", ERROR_WRONGOPT);
+			exit(1);
+		break;
+	}
+	return queue;
+}
+
+void queueClose(mqd_t queue){
+	if(-1 == (mq_close(queue))){
+		fprintf(stderr, "%s\n", ERROR_MQ_CLOSE);
+		exit(1);
 	}
 }
