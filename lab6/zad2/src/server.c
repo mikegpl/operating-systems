@@ -10,6 +10,8 @@ int main(int argc, char *argv[]){
 	mqd_t myQueue = queueOpen(SERVER_NAME, 'r');
 	shutdown = clientsCount = idCount = 0;	
 	Message msg;
+
+	// todo - while !shutdown or !queueempty
 	while(!shutdown){
 		processMessage(queueReceive(myQueue, &msg));
 	}
@@ -20,24 +22,37 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
+
+// todo -> handle LOGOUT
 void processMessage(Message *msg){
+	printf("Origin: %ld, type: %d, contents: %s\n", msg->originpid, (int) msg->type, msg->contents);
 	if(NULL != msg){
 		switch(msg->type){
 			case LOGIN:
 				handleLogin(msg);
-			break;
+				break;
+			case UPPER:
+				handleUpper(msg);
+				break;
+			case TIME:
+				handleTime(msg);
+				break;
+			case ECHO:
+				handleEcho(msg);
+				break;
+			case TERMINATE:
+				// todo -> inform clients that server is quitting
+				printf("Received order to kill myself\n");
+				shutdown = 1;
+				break;
 			default:
-				printf("Type %d, contents: %s", (int) msg->type, msg->contents);
-				if(strncmp(msg->contents, "xD", 2) == 0)
-					shutdown = 1;
-			break;
+				break;
 		}
 	}
 }
 
 
 
-// pack procedures below into lib
 void handleLogin(Message *msg){
 	mqd_t clientQueue = queueOpen(msg->contents, 'w');
 	if(clientsCount < MAX_CLIENTS){
@@ -59,14 +74,57 @@ void handleLogin(Message *msg){
 	strcpy(msg->contents, "Opened client's queue");
 }
 
+void handleEcho(Message *msg){
+	mqd_t client;
+	if(-1 != (client = getClientQueue(msg->originpid))){
+		msg->originpid = getpid();
+		queueSend(client, msg);
+	}
+}
+
+void handleUpper(Message *msg){
+	mqd_t client;
+	if(-1 != (client = getClientQueue(msg->originpid))){
+		msg->originpid = getpid();
+		int length = strlen(msg->contents);
+		for(int i = 0; i < length; i++)
+			msg->contents[i] = toupper(msg->contents[i]);
+		queueSend(client, msg);
+	}
+}
+
+void handleTime(Message *msg){
+	mqd_t client;
+	if(-1 != (client = getClientQueue(msg->originpid))){
+		msg->originpid = getpid();
+		time_t timer;
+		struct tm *tm_info;
+		time(&timer);
+		tm_info = localtime(&timer);
+		strftime(msg->contents, MAX_MSG_LEN, TIME_FORMAT, tm_info);
+		printf("%s\n", msg->contents);
+		queueSend(client, msg);
+	}	
+}
+
+mqd_t getClientQueue(pid_t clientPid){
+	for(int i = 0; i < clientsCount; i++){
+		if(clientPid == clientPids[i])
+			return clientQueues[i];
+	}
+	return -1;
+}
+
+
+// pack procedures below into lib
 void queueSend(mqd_t queue, Message *msg){
-	if(-1 == (mq_send(queue, msg, MESSAGE_SIZE, 0))){
+	if(-1 == (mq_send(queue, (char *) msg, MESSAGE_SIZE, 0))){
 		fprintf(stderr, "%s\n", ERROR_MQ_SEND);
 	}
 }
 
 Message *queueReceive(mqd_t queue, Message *msg){
-	if(-1 == (mq_receive(queue, msg, MESSAGE_SIZE, 0))){
+	if(-1 == (mq_receive(queue, (char *) msg, MESSAGE_SIZE, 0))){
 		fprintf(stderr, "%s\n", ERROR_MQ_RECV);
 		exit(1);
 	}
@@ -79,7 +137,6 @@ mqd_t queueOpen(const char *name, char mode){
 	attr.mq_flags = 0;
 	attr.mq_maxmsg = MSGS_LIMIT;
 	attr.mq_msgsize = MESSAGE_SIZE;
-	attr.mq_curmsgs = 0;
 
 	switch(mode){
 		case 'r':

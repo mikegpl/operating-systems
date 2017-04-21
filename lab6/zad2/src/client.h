@@ -8,11 +8,12 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <time.h>
 #include "protocol.h"
 
 void getQueueName(char *buffer);
-// void parseLine(char *line, ssize_t lineLength, Message *msg);
+int parseLine(char *line, ssize_t lineLength, Message *msg);
 
 static const char *LEGAL_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
 static const char *HELP_INFO = "Available commands:\nlogout\necho message\nupper message\ntime\nterminate";

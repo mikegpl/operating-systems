@@ -16,9 +16,9 @@ int main(int argc, char const *argv[]){
 	serverQueue = queueOpen(SERVER_NAME, 'w');
 
 	Message msg;
-	char myID[4];
 
-	// pack this into loginClient
+	// later pack this into registerClient
+	char myID[4];
 	msg.type = LOGIN;
 	msg.originpid = getpid();
 	strcpy(msg.contents, myQueueName);
@@ -29,23 +29,35 @@ int main(int argc, char const *argv[]){
 		sprintf(myID, "%s", msg.contents);
 	}
 	else{
+		printf("Connection refused. Reason: %s\n", msg.contents);
 		shutdown = 1;
 	}
 	// if NACK -> quit, else enter loop below
 
 	size_t readSize;	
 	char *line;
-	while(!shutdown){
+	while(!shutdown){ 
+		// todo - if there is any message on queue, process it here (for example info about TERMINATE)
+
+		// todo - pack this piece of code into int readCommand(Message *msg);
+		// ----
 		printf("Client (%s)> ", myID);
 		ssize_t charsRead = getline(&line, &readSize, stdin);
 		if(-1 == charsRead){
 			printf("Received EOF, quitting\n");
 			break;
 		}
-		msg.type = ECHO;
-		msg.originpid = getpid();
-		strcpy(msg.contents, line);
+		int awaitResponse;
+		if(-1 == (awaitResponse = parseLine(line, charsRead, &msg))){
+			continue;
+		}
+		// ----
+
 		queueSend(serverQueue, &msg);
+		if(awaitResponse){
+			queueReceive(myQueue, &msg);
+			printf("server> %s\n", msg.contents);
+		}
 	}
 
 	queueClose(serverQueue);
@@ -55,7 +67,7 @@ int main(int argc, char const *argv[]){
 
 void getQueueName(char *buffer){
 	srand(time(NULL));
-	if(buffer == NULL){
+	if(NULL == buffer){
 		exit(1);
 	}
 	buffer[0] = '/';
@@ -65,50 +77,55 @@ void getQueueName(char *buffer){
 	buffer[MAX_NAME_LEN] = '\0';
 }
 
-// void parseLine(char *line, ssize_t lineLength, Message *msg){
-// 	msg->type = 0;	
-// 	msg->originpid = getpid();
-// 	if(lineLength > MAX_MSG_LEN){
-// 		printf("%s\n", ERROR_MAX_LEN);
-// 		return;
-// 	}
-// 	else{
-// 		char *tmp = strtok(line, WSPACE_DELIMITERS);
-// 		if(tmp == NULL){
-// 			return;
-// 		}
-// 		else{
-// 			int i;
-// 			for(i = 0; i < PARSE_ARRAY_LEN; i++){
-// 				if(strcmp(tmp, COMMANDS[i]) == 0){
-// 					msg->type = TYPES[i];
-// 					break;
-// 				}
-// 			}
-// 			if(i == PARSE_ARRAY_LEN){
-// 				printf("%s\n", HELP_INFO);
-// 				return;
-// 			}
-// 		}
-// 		tmp = strtok(NULL, "");
-// 		if(tmp != NULL){
-// 			tmp[strlen(tmp) - 1] = '\0';
-// 			strcpy(msg->contents, tmp);
-// 			printf("Message %s\n", msg->contents);
-// 		}
-// 	}
-// }
+int parseLine(char *line, ssize_t lineLength, Message *msg){
+	int awaitResponse;
+	msg->type = 0;	
+	msg->originpid = getpid();
+	if(lineLength > MAX_MSG_LEN){
+		printf("%s\n", ERROR_MAX_LEN);
+		return -1;
+	}
+	else{
+		char *tmp = strtok(line, WSPACE_DELIMITERS);
+		if(tmp == NULL){
+			return -1;
+		}
+		else{
+			int i;
+			for(i = 0; i < PARSE_ARRAY_LEN; i++){
+				if(strcmp(tmp, COMMANDS[i]) == 0){
+					msg->type = TYPES[i];
+					if(LOGIN == TYPES[i] || TERMINATE == TYPES[i])
+						awaitResponse = 0;
+					else
+						awaitResponse = 1;
+					break;
+				}
+			}
+			if(i == PARSE_ARRAY_LEN){
+				printf("%s\n", HELP_INFO);
+				return -1;
+			}
+		}
+		tmp = strtok(NULL, "");
+		if(tmp != NULL){
+			tmp[strlen(tmp) - 1] = '\0';
+			strcpy(msg->contents, tmp);
+		}
+		return awaitResponse;
+	}
+}
 
 
 // pack procedures below into lib
 void queueSend(mqd_t queue, Message *msg){
-	if(-1 == (mq_send(queue, msg, MESSAGE_SIZE, 0))){
+	if(-1 == (mq_send(queue, (char *) msg, MESSAGE_SIZE, 0))){
 		fprintf(stderr, "%s\n", ERROR_MQ_SEND);
 	}
 }
 
 Message *queueReceive(mqd_t queue, Message *msg){
-	if(-1 == (mq_receive(queue, msg, MESSAGE_SIZE, 0))){
+	if(-1 == (mq_receive(queue, (char *) msg, MESSAGE_SIZE, 0))){
 		fprintf(stderr, "%s\n", ERROR_MQ_RECV);
 		exit(1);
 	}
@@ -121,7 +138,6 @@ mqd_t queueOpen(const char *name, char mode){
 	attr.mq_flags = 0;
 	attr.mq_maxmsg = MSGS_LIMIT;
 	attr.mq_msgsize = MESSAGE_SIZE;
-	attr.mq_curmsgs = 0;
 
 	switch(mode){
 		case 'r':
