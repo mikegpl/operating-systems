@@ -10,10 +10,13 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <time.h>
+#include <ctype.h>
 #include "protocol.h"
 
 void processMessage(Message *msg);
 void handleLogin(Message *msg);
+void handleLogout(Message *msg);
+void handleEcho(Message *msg);
 void handleTime(Message *msg);
 void handleUpper(Message *msg);
 mqd_t getClientQueue(pid_t clientPid);

@@ -7,7 +7,6 @@ int shutdown;
 
 int main(int argc, char const *argv[]){
 	printf("Client\n");
-	shutdown = 0;
 	char myQueueName[MAX_NAME_LEN+1];
 	getQueueName(myQueueName);
 	printf("'%s'\n", myQueueName);
@@ -16,53 +15,58 @@ int main(int argc, char const *argv[]){
 	serverQueue = queueOpen(SERVER_NAME, 'w');
 
 	Message msg;
-
-	// later pack this into registerClient
 	char myID[4];
-	msg.type = LOGIN;
-	msg.originpid = getpid();
-	strcpy(msg.contents, myQueueName);
-	queueSend(serverQueue, &msg);
-	queueReceive(myQueue, &msg);
-	if(msg.type == ACK){
-		printf("Connected to the server. My id: %s\n", msg.contents);
-		sprintf(myID, "%s", msg.contents);
-	}
-	else{
-		printf("Connection refused. Reason: %s\n", msg.contents);
-		shutdown = 1;
-	}
-	// if NACK -> quit, else enter loop below
+	shutdown = 0;
+
+	registerClient(&msg, myQueueName, myID);
 
 	size_t readSize;	
 	char *line;
 	while(!shutdown){ 
-		// todo - if there is any message on queue, process it here (for example info about TERMINATE)
-
-		// todo - pack this piece of code into int readCommand(Message *msg);
-		// ----
 		printf("Client (%s)> ", myID);
 		ssize_t charsRead = getline(&line, &readSize, stdin);
 		if(-1 == charsRead){
 			printf("Received EOF, quitting\n");
 			break;
 		}
+
 		int awaitResponse;
 		if(-1 == (awaitResponse = parseLine(line, charsRead, &msg))){
 			continue;
 		}
-		// ----
 
 		queueSend(serverQueue, &msg);
 		if(awaitResponse){
-			queueReceive(myQueue, &msg);
-			printf("server> %s\n", msg.contents);
+			shutdown = queueTimedReceive(myQueue, &msg, SERVER_TIMEOUT);
+			if(!shutdown)
+				printf("server> %s\n", msg.contents);
+		}
+		else{
+			printf("Exiting\n");
+			break;
 		}
 	}
 
 	queueClose(serverQueue);
 	queueClose(myQueue);
+	queueDelete(myQueueName);
 	return 0;
+}
+
+void registerClient(Message *msg, char *queueName, char *clientID){
+	msg->type = LOGIN;
+	msg->originpid = getpid();
+	strcpy(msg->contents, queueName);
+	queueSend(serverQueue, msg);
+	queueReceive(myQueue, msg);
+	if(msg->type == ACK){
+		printf("Connected to the server. My id: %s\n", msg->contents);
+		sprintf(clientID, "%s", msg->contents);
+	}
+	else{
+		printf("Connection refused. Reason: %s\n", msg->contents);
+		shutdown = 1;
+	}
 }
 
 void getQueueName(char *buffer){
@@ -95,7 +99,7 @@ int parseLine(char *line, ssize_t lineLength, Message *msg){
 			for(i = 0; i < PARSE_ARRAY_LEN; i++){
 				if(strcmp(tmp, COMMANDS[i]) == 0){
 					msg->type = TYPES[i];
-					if(LOGIN == TYPES[i] || TERMINATE == TYPES[i])
+					if(LOGOUT == TYPES[i] || TERMINATE == TYPES[i])
 						awaitResponse = 0;
 					else
 						awaitResponse = 1;
@@ -115,6 +119,11 @@ int parseLine(char *line, ssize_t lineLength, Message *msg){
 		return awaitResponse;
 	}
 }
+
+
+
+
+
 
 
 // pack procedures below into lib
@@ -165,4 +174,31 @@ void queueClose(mqd_t queue){
 		fprintf(stderr, "%s\n", ERROR_MQ_CLOSE);
 		exit(1);
 	}
+}
+
+void queueDelete(const char *name){
+	if(-1 == mq_unlink(name)){
+		fprintf(stderr, "%s\n", ERROR_MQ_UNLINK);
+		exit(1);
+	}
+}
+
+int queueEmpty(mqd_t queue){
+	struct mq_attr attr;
+	if(-1 == mq_getattr(queue, &attr)){
+		fprintf(stderr, "%s\n", ERROR_MQ_GETATTR);
+		exit(1);
+	}
+	return (attr.mq_curmsgs == 0);
+}
+
+int queueTimedReceive(mqd_t queue, Message *msg, int delayInSeconds){
+	struct timespec tm;
+	clock_gettime(CLOCK_REALTIME, &tm);
+	tm.tv_sec += delayInSeconds;
+	if(-1 == mq_timedreceive(queue, (char *) msg, MESSAGE_SIZE, 0, &tm)){
+		printf("%s\n", ERROR_TIMEOUT);
+		return 1;
+	}
+	return 0;
 }

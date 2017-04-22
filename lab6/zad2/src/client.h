@@ -14,10 +14,12 @@
 
 void getQueueName(char *buffer);
 int parseLine(char *line, ssize_t lineLength, Message *msg);
+void registerClient(Message *msg, char *queueName, char *clientID);
 
 static const char *LEGAL_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
 static const char *HELP_INFO = "Available commands:\nlogout\necho message\nupper message\ntime\nterminate";
 static const char *ERROR_MAX_LEN = "Error: message is too long";
+static const char *ERROR_TIMEOUT = "Error: server response timeout. Exitting";
 static const char *WSPACE_DELIMITERS = "\n\t "; 
 
 static const int PARSE_ARRAY_LEN = 5;
