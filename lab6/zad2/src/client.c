@@ -11,8 +11,8 @@ int main(int argc, char const *argv[]){
 	getQueueName(myQueueName);
 	printf("'%s'\n", myQueueName);
 
-	myQueue = queueOpen(myQueueName, 'r');
-	serverQueue = queueOpen(SERVER_NAME, 'w');
+	myQueue = mq_queueOpen(myQueueName, 'r');
+	serverQueue = mq_queueOpen(SERVER_NAME, 'w');
 
 	Message msg;
 	char myID[4];
@@ -35,9 +35,9 @@ int main(int argc, char const *argv[]){
 			continue;
 		}
 
-		queueSend(serverQueue, &msg);
+		mq_queueSend(serverQueue, &msg);
 		if(awaitResponse){
-			shutdown = queueTimedReceive(myQueue, &msg, SERVER_TIMEOUT);
+			shutdown = mq_queueTimedReceive(myQueue, &msg, SERVER_TIMEOUT);
 			if(!shutdown)
 				printf("server> %s\n", msg.contents);
 		}
@@ -47,9 +47,9 @@ int main(int argc, char const *argv[]){
 		}
 	}
 
-	queueClose(serverQueue);
-	queueClose(myQueue);
-	queueDelete(myQueueName);
+	mq_queueClose(serverQueue);
+	mq_queueClose(myQueue);
+	mq_queueDelete(myQueueName);
 	return 0;
 }
 
@@ -57,9 +57,9 @@ void registerClient(Message *msg, char *queueName, char *clientID){
 	msg->type = LOGIN;
 	msg->originpid = getpid();
 	strcpy(msg->contents, queueName);
-	queueSend(serverQueue, msg);
-	queueReceive(myQueue, msg);
-	if(msg->type == ACK){
+	mq_queueSend(serverQueue, msg);
+	mq_queueReceive(myQueue, msg);
+	if(ACK == msg->type){
 		printf("Connected to the server. My id: %s\n", msg->contents);
 		sprintf(clientID, "%s", msg->contents);
 	}
@@ -120,20 +120,14 @@ int parseLine(char *line, ssize_t lineLength, Message *msg){
 	}
 }
 
-
-
-
-
-
-
 // pack procedures below into lib
-void queueSend(mqd_t queue, Message *msg){
+void mq_queueSend(mqd_t queue, Message *msg){
 	if(-1 == (mq_send(queue, (char *) msg, MESSAGE_SIZE, 0))){
 		fprintf(stderr, "%s\n", ERROR_MQ_SEND);
 	}
 }
 
-Message *queueReceive(mqd_t queue, Message *msg){
+Message *mq_queueReceive(mqd_t queue, Message *msg){
 	if(-1 == (mq_receive(queue, (char *) msg, MESSAGE_SIZE, 0))){
 		fprintf(stderr, "%s\n", ERROR_MQ_RECV);
 		exit(1);
@@ -141,7 +135,7 @@ Message *queueReceive(mqd_t queue, Message *msg){
 	return msg;
 }
 
-mqd_t queueOpen(const char *name, char mode){
+mqd_t mq_queueOpen(const char *name, char mode){
 	mqd_t queue;
 	struct mq_attr attr;
 	attr.mq_flags = 0;
@@ -169,14 +163,14 @@ mqd_t queueOpen(const char *name, char mode){
 	return queue;
 }
 
-void queueClose(mqd_t queue){
+void mq_queueClose(mqd_t queue){
 	if(-1 == (mq_close(queue))){
 		fprintf(stderr, "%s\n", ERROR_MQ_CLOSE);
 		exit(1);
 	}
 }
 
-void queueDelete(const char *name){
+void mq_queueDelete(const char *name){
 	if(-1 == mq_unlink(name)){
 		fprintf(stderr, "%s\n", ERROR_MQ_UNLINK);
 		exit(1);
@@ -192,7 +186,7 @@ int queueEmpty(mqd_t queue){
 	return (attr.mq_curmsgs == 0);
 }
 
-int queueTimedReceive(mqd_t queue, Message *msg, int delayInSeconds){
+int mq_queueTimedReceive(mqd_t queue, Message *msg, int delayInSeconds){
 	struct timespec tm;
 	clock_gettime(CLOCK_REALTIME, &tm);
 	tm.tv_sec += delayInSeconds;

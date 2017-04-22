@@ -7,18 +7,18 @@ mqd_t clientQueues[MAX_CLIENTS];
 
 int main(int argc, char *argv[]){
 	printf("Server\n");
-	mqd_t myQueue = queueOpen(SERVER_NAME, 'r');
+	mqd_t myQueue = mq_queueOpen(SERVER_NAME, 'r');
 	shutdown = clientsCount = idCount = 0;	
 	Message msg;
 
-	while(!shutdown || !queueEmpty(myQueue)){
-		processMessage(queueReceive(myQueue, &msg));
+	while(!shutdown || !mq_queueEmpty(myQueue)){
+		processMessage(mq_queueReceive(myQueue, &msg));
 	}
 
 	for(int i = 0; i < clientsCount; i++)
-		queueClose(clientQueues[i]);
-	queueClose(myQueue);
-	queueDelete(SERVER_NAME);
+		mq_queueClose(clientQueues[i]);
+	mq_queueClose(myQueue);
+	mq_queueDelete(SERVER_NAME);
     return 0;
 }
 
@@ -46,6 +46,7 @@ void processMessage(Message *msg){
 				shutdown = 1;
 				break;
 			default:
+				fprintf(stderr, "Received illegal command\n");
 				break;
 		}
 	}
@@ -53,7 +54,8 @@ void processMessage(Message *msg){
 
 void handleLogin(Message *msg){
 	printf("%d is trying to connect\n", msg->originpid);
-	mqd_t clientQueue = queueOpen(msg->contents, 'w');
+	mqd_t clientQueue = mq_queueOpen(msg->contents, 'w');
+	
 	if(clientsCount < MAX_CLIENTS){
 		printf("%d has connected successfully\n", msg->originpid);
 		clientPids[clientsCount] = msg->originpid;
@@ -62,15 +64,15 @@ void handleLogin(Message *msg){
 		msg->type = ACK;
 		msg->originpid = getpid();
 		sprintf(msg->contents, "%d", idCount++);
-		queueSend(clientQueue, msg);
+		mq_queueSend(clientQueue, msg);
 	}
 	else{
 		printf("%d - connection refused\n", msg->originpid);
 		msg->type = NACK;
 		msg->originpid = getpid();
 		strcpy(msg->contents, SERVER_FULL);
-		queueSend(clientQueue, msg);
-		queueClose(clientQueue);
+		mq_queueSend(clientQueue, msg);
+		mq_queueClose(clientQueue);
 	}
 }
 
@@ -83,7 +85,7 @@ void handleLogout(Message *msg){
 			break;
 		}
 	}
-	queueClose(clientQueue);
+	mq_queueClose(clientQueue);
 	while(i < MAX_CLIENTS - 1){
 		clientPids[i] = clientPids[i+1];
 		clientQueues[i] = clientQueues[i+1];
@@ -96,7 +98,7 @@ void handleEcho(Message *msg){
 	mqd_t client;
 	if(-1 != (client = getClientQueue(msg->originpid))){
 		msg->originpid = getpid();
-		queueSend(client, msg);
+		mq_queueSend(client, msg);
 	}
 }
 
@@ -107,7 +109,7 @@ void handleUpper(Message *msg){
 		int length = strlen(msg->contents);
 		for(int i = 0; i < length; i++)
 			msg->contents[i] = toupper(msg->contents[i]);
-		queueSend(client, msg);
+		mq_queueSend(client, msg);
 	}
 }
 
@@ -120,7 +122,7 @@ void handleTime(Message *msg){
 		time(&timer);
 		tm_info = localtime(&timer);
 		strftime(msg->contents, MAX_MSG_LEN, TIME_FORMAT, tm_info);
-		queueSend(client, msg);
+		mq_queueSend(client, msg);
 	}	
 }
 
@@ -133,13 +135,13 @@ mqd_t getClientQueue(pid_t clientPid){
 }
 
 // pack procedures below into lib
-void queueSend(mqd_t queue, Message *msg){
+void mq_queueSend(mqd_t queue, Message *msg){
 	if(-1 == (mq_send(queue, (char *) msg, MESSAGE_SIZE, 0))){
 		fprintf(stderr, "%s\n", ERROR_MQ_SEND);
 	}
 }
 
-Message *queueReceive(mqd_t queue, Message *msg){
+Message *mq_queueReceive(mqd_t queue, Message *msg){
 	if(-1 == (mq_receive(queue, (char *) msg, MESSAGE_SIZE, 0))){
 		fprintf(stderr, "%s\n", ERROR_MQ_RECV);
 		exit(1);
@@ -147,7 +149,7 @@ Message *queueReceive(mqd_t queue, Message *msg){
 	return msg;
 }
 
-mqd_t queueOpen(const char *name, char mode){
+mqd_t mq_queueOpen(const char *name, char mode){
 	mqd_t queue;
 	struct mq_attr attr;
 	attr.mq_flags = 0;
@@ -175,21 +177,21 @@ mqd_t queueOpen(const char *name, char mode){
 	return queue;
 }
 
-void queueClose(mqd_t queue){
+void mq_queueClose(mqd_t queue){
 	if(-1 == mq_close(queue)){
 		fprintf(stderr, "%s\n", ERROR_MQ_CLOSE);
 		exit(1);
 	}
 }
 
-void queueDelete(const char *name){
+void mq_queueDelete(const char *name){
 	if(-1 == mq_unlink(name)){
 		fprintf(stderr, "%s\n", ERROR_MQ_UNLINK);
 		exit(1);
 	}
 }
 
-int queueEmpty(mqd_t queue){
+int mq_queueEmpty(mqd_t queue){
 	struct mq_attr attr;
 	if(-1 == mq_getattr(queue, &attr)){
 		fprintf(stderr, "%s\n", ERROR_MQ_GETATTR);

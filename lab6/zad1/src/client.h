@@ -1,19 +1,18 @@
 #ifndef CLIENT_H
 #define CLIENT_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 #include "protocol.h"
 
-key_t getKey();
-int getQueue(key_t key, int flags);
-void deleteQueue(int qid);
-int queueEmpty(int qid);
-int connectToServer();
-void processLine(char *line, ssize_t lineLength); 
-void parseLine(char *line, ssize_t lineLength, Message *msg);
-void sendToServer(Message *msg, MessageType expectedType);
-void receiveMessage(int qid, Message *msg);
+int registerClient();
+int parseLine(char *line, ssize_t lineLength, Message *msg);
 void processMessage(Message *message);
-
-void safeExit(int exitCode);
 int stringToInt(char *number);
 
 static const char *HELP_INFO = "Available commands:\nlogout\necho message\nupper message\ntime\nterminate";

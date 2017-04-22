@@ -20,15 +20,13 @@ typedef struct Message
 	char contents[MAX_MSG_LEN];
 } Message;
 	
-
-
-mqd_t queueOpen(const char *name, char mode);
-void queueClose(mqd_t queue);
-void queueDelete(const char *name);
-void queueSend(mqd_t queue, Message *msg);
-Message *queueReceive(mqd_t queue, Message *msg);
-int queueTimedReceive(mqd_t queue, Message *msg, int delayInSeconds);
-int queueEmpty(mqd_t queue);
+mqd_t mq_queueOpen(const char *name, char mode);
+void mq_queueClose(mqd_t queue);
+void mq_queueDelete(const char *name);
+void mq_queueSend(mqd_t queue, Message *msg);
+Message *mq_queueReceive(mqd_t queue, Message *msg);
+int mq_queueTimedReceive(mqd_t queue, Message *msg, int delayInSeconds);
+int mq_queueEmpty(mqd_t queue);
 
 static const int MESSAGE_SIZE = sizeof(Message);
 static const char *SERVER_NAME = "/abcdefg";

@@ -1,49 +1,27 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
-#include <ctype.h>
-#include <time.h>
 #include "server.h"
 
-unsigned int clientsID[MAX_CLIENTS][2];
+// pid / queueKey
+unsigned int clientData[MAX_CLIENTS][2];
 int clientCount; 
-int clientID;
-int shutDown;
+int idCount;
+int shutdown;
 
 int main(int argc, char *argv[]){
-	key_t serverKey;
-	int queueID;
-	shutDown = 0;
-	clientCount = 0;
-	serverKey = getKey();
-	queueID = getQueue(serverKey, IPC_CREAT | QUEUE_ACCESS);
-
-	printf("Server is now working\n");
+	printf("Server\n");
+	key_t serverKey = ipc_getKey(getenv(PATH_SOURCE));
+	int myQueue = ipc_queueOpen(serverKey, IPC_CREAT | QUEUE_ACCESS);
+	shutdown = clientCount = idCount = 0;
 	Message msg;
-	while(!shutDown){
-	  	if(msgrcv(queueID, &msg, MESSAGE_SIZE, 0, 0) == -1) {
-	  	 	fprintf(stderr, "msgrcv error: %s\n", strerror(errno));
-            exit(1);
-        }
-        processMessage(&msg);
+
+	while(!shutdown || !ipc_queueEmpty(myQueue)){
+        processMessage(ipc_queueReceive(myQueue, &msg));
 	}
-	printf("Shutting down server\n");
-	msg.type = TERMINATE;
-	strcpy(msg.contents, "Server shutting down");
-	for(int i = 0; i < clientCount; i++){
-		sendToClient(clientsID[i][1], &msg);
-	}
-	deleteQueue(queueID);
+
+	ipc_queueDelete(myQueue);
     return 0;
 }
 
 void processMessage(Message *msg){
-	assert(msg != NULL);
 	switch(msg->type){
 		case LOGIN:
 			handleLogin(msg);
@@ -61,7 +39,8 @@ void processMessage(Message *msg){
 			handleTime(msg);
 			break;
 		case TERMINATE:
-			handleTerminate(msg);
+			printf("I must go, my planet needs me.\n");
+			shutdown = 1;
 			break;
 		default:
 			fprintf(stderr, "Received illegal cmd\n");
@@ -69,108 +48,84 @@ void processMessage(Message *msg){
 	}
 }
 
-key_t getKey(){
-	key_t key;
-	const char *filePath = (const char *) getenv(PATH_SOURCE);
-	if(filePath == NULL){
-		fprintf(stderr, "Couldn't get value of %s, setting filepath to '%s'\n", PATH_SOURCE, DEFAULT_PATH);
-		filePath = PATH_SOURCE;
-	}	
-	
-	if((key = ftok(filePath, PROJECT_ID)) == -1){
-		fprintf(stderr, "ftok error: %s\n", strerror(errno));	
-		exit(1);
-	}
-	return key;
-}
-
-int getQueue(key_t key, int flags){
-	int qid;
-	if((qid = msgget(key, flags)) == -1){
-		fprintf(stderr, "msgget error: %s\n", strerror(errno));
-		exit(1);
-	}
-	return qid;
-}
-
-
-void deleteQueue(int qid){
-	if((msgctl(qid, IPC_RMID, NULL)) == -1){
-		fprintf(stderr, "queue deletion error: %s\n", strerror(errno));
-	}
-}
-
-void handleLogin(Message *message){
-	pid_t clientpid = message->originpid;
-	int qid = stringToInt(message->contents);
-
+void handleLogin(Message *msg){
+	pid_t clientpid = msg->originpid;
 	printf("%d is trying to connect\n", clientpid);
-	Message msg;
-	msg.originpid = getpid();
-	if(clientCount == MAX_CLIENTS){
-		msg.type = NACK;
-		strcpy(msg.contents, "Connection refused - server is full");
-		printf("%d - connection refused\n", clientpid);
-		printf("%d Current number of connected clients\n", clientCount);
+	int qid = stringToInt(msg->contents);
+	printf("client's queue %d\n", qid);
+	msg->originpid = getpid();
+
+	if(clientCount < MAX_CLIENTS){
+		printf("%d has connected successfuly\n", clientpid);
+		msg->type = ACK;
+		sprintf(msg->contents, "%d", idCount++);
+		clientData[clientCount][0] = clientpid;
+		clientData[clientCount][1] = qid;
+		clientCount++;
 	}
 	else{
-		msg.type = ACK;
-		sprintf(msg.contents, "%d", clientID++);
-		clientsID[clientCount][0] = clientpid;
-		clientsID[clientCount][1] = qid;
-		clientCount++;
-		printf("%d has successfuly connected\n", clientpid);
+		printf("%d - connection refused\n", clientpid);
+		msg->type = NACK;
+		strcpy(msg->contents, SERVER_FULL);
 	}
-	sendToClient(qid, &msg);
+	ipc_queueSend(qid, msg);
 }
 
 void handleLogout(Message *msg){
-	pid_t clientpid = msg->originpid;
 	int i;
 	for(i = 0; i < MAX_CLIENTS; i++){
-		if(clientpid == clientsID[i][0]){
-			printf("%d has exited\n", clientpid);
+		if(msg->originpid == clientData[i][0]){
+			printf("%d has exited\n", msg->originpid);
+			break;
 		}
 	}
 	while(i < MAX_CLIENTS-1){
-		clientsID[i][0] = clientsID[i+1][0];
-		clientsID[i][1] = clientsID[i+1][1];
+		clientData[i][0] = clientData[i+1][0];
+		clientData[i][1] = clientData[i+1][1];
 		i++;
 	}
 	clientCount--;
 }
 
-void handleTerminate(Message *msg){
-	printf("Received order to kill myself.\n");
-	shutDown = 1;
-	handleLogout(msg);
-}
-
 void handleEcho(Message *msg){
-	int qid = getClientID(msg->originpid);
-	msg->originpid = getpid();
-	sendToClient(qid, msg);
+	int qid;
+	if(-1 != (qid = getClientQid(msg->originpid))){
+		msg->originpid = getpid();
+		ipc_queueSend(qid, msg);
+	}
 }
 
 void handleUpper(Message *msg){
-	int qid = getClientID(msg->originpid);
-	int length = strlen(msg->contents);
-	for(int i = 0; i < length; i++)
-		msg->contents[i] = toupper(msg->contents[i]);
-	msg->originpid = getpid();
-	sendToClient(qid, msg);
+	int qid;
+	if(-1 != (qid = getClientQid(msg->originpid))){
+		msg->originpid = getpid();
+		int length = strlen(msg->contents);
+		for(int i = 0; i < length; i++)
+			msg->contents[i] = toupper(msg->contents[i]);
+		ipc_queueSend(qid, msg);
+	}
 }
 
 void handleTime(Message *msg){
-	int qid = getClientID(msg->originpid);
-	msg->originpid = getpid();
-	time_t timer;
-	struct tm *tm_info;
-	time(&timer);
-	tm_info = localtime(&timer);
-	strftime(msg->contents, MAX_MSG_LEN, TIME_FORMAT, tm_info);
-	printf("%s\n", msg->contents);
-	sendToClient(qid, msg);
+	int qid;
+	if(-1 != (qid = getClientQid(msg->originpid))){
+		msg->originpid = getpid();
+		time_t timer;
+		struct tm *tm_info;
+		time(&timer);
+		tm_info = localtime(&timer);
+		strftime(msg->contents, MAX_MSG_LEN, TIME_FORMAT, tm_info);
+		ipc_queueSend(qid, msg);		
+	}
+}
+
+int getClientQid(pid_t clientpid){
+	for(int i = 0; i < clientCount; i++){
+		if(clientpid == clientData[i][0]){
+			return clientData[i][1];
+		}
+	}
+	return -1;
 }
 
 int stringToInt(char *number){
@@ -184,18 +139,60 @@ int stringToInt(char *number){
     return value;
 }
 
-void sendToClient(int qid, Message *msg){
-	if(msgsnd(qid, msg, MESSAGE_SIZE, 0) == -1) {
-        fprintf(stderr, "msgsnd error: %s\n", strerror(errno));
+// queue interface
+key_t ipc_getKey(char *path){
+	key_t key;
+	if(NULL == path){
+		fprintf(stderr, "%s\n", ERROR_FILEPATH);
+		exit(1);
+	}	
+	
+	if(-1 == (key = ftok(path, PROJECT_ID))){
+		fprintf(stderr, "%s\n", ERROR_FTOK);	
+		exit(1);
+	}
+	return key;
+}
+
+
+int ipc_queueOpen(key_t key, int flags){
+	int qid;
+	if(-1 == (qid = msgget(key, flags))){
+		fprintf(stderr, "%s\n", ERROR_IPC_OPEN);
+		exit(1);
+	}
+	return qid;
+}
+
+
+void ipc_queueDelete(int qid){
+	if(-1 == (msgctl(qid, IPC_RMID, NULL))){
+		fprintf(stderr, "%s\n", ERROR_IPC_DELETE);
+		exit(1);
+	}
+}
+
+void ipc_queueSend(int qid, Message *msg){
+	if(-1 == msgsnd(qid, msg, MESSAGE_SIZE, 0)) {
+        fprintf(stderr, "%s\n", ERROR_IPC_SEND);
         exit(1);
     }
 }
 
-int getClientID(pid_t clientpid){
-	for(int i = 0; i < clientCount; i++){
-		if(clientpid == clientsID[i][0]){
-			return clientsID[i][1];
-		}
-	}
-	return -1;
+Message *ipc_queueReceive(int queue, Message *msg){
+ 	if(-1 == msgrcv(queue, msg, MESSAGE_SIZE, 0, 0)) {
+  	 	fprintf(stderr, "%s\n", ERROR_IPC_RECV);
+        exit(1);
+    }
+    return msg;
 }
+
+int ipc_queueEmpty(int qid){
+	struct msqid_ds stat;	
+	if(-1 == msgctl(qid, IPC_STAT, &stat)){
+		fprintf(stderr, "%s\n", ERROR_IPC_STAT);
+		exit(1);
+	}
+	return (stat.msg_qnum == 0);
+}
+

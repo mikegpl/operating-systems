@@ -1,155 +1,100 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
 #include "client.h"
 
-pid_t mypid;
 int shutdown;
-int serverQID, myQID;
+int serverQueue, myQueue;
 
 int main(int argc, char *argv[]){
+	printf("Client\n");
+
 	key_t serverKey;
-	mypid = getpid();
-
-	myQID = getQueue(IPC_PRIVATE, 0660);
-	serverKey = getKey();
-	serverQID = getQueue(serverKey, 0);
-
-    int clientID = connectToServer();
+	serverKey = ipc_getKey(getenv(PATH_SOURCE));
+	myQueue = ipc_queueOpen(IPC_PRIVATE, QUEUE_ACCESS);
+	serverQueue = ipc_queueOpen(serverKey, 0);
 
     Message msg;
-    char *line = NULL;
-    size_t size = 0;
     shutdown = 0;
-    while(!shutdown){
-    	while(!queueEmpty(myQID)){
-    		receiveMessage(myQID, &msg);
-    		if(msg.type == TERMINATE){
-    			printf("%s. Exitting\n", msg.contents);
-    			shutdown = 1;
-    		}
-    	}
-    	if(shutdown)
-    		break;
+    int myID = registerClient();
 
-    	printf("me (id:%3d )> ", clientID);
+    char *line;
+    size_t size;
+    while(!shutdown){
+    	printf("Client (%d)> ", myID);
     	ssize_t charsRead = getline(&line, &size, stdin);
-		if(charsRead != -1){
-			processLine(line, charsRead);
+		if(-1 == charsRead){
+			printf("Received EOF, quitting\n");
+			break;
+		}
+		
+		int awaitResponse;
+		if(-1 == (awaitResponse = parseLine(line, charsRead, &msg))){
+			continue;
+		}
+
+		ipc_queueSend(serverQueue, &msg);
+		if(awaitResponse){
+			ipc_queueReceive(myQueue, &msg);
+			if(!shutdown)
+				printf("server> %s\n", msg.contents);
 		}
 		else{
-			printf("\nFinished reading lines from stdin\n");
-			if(line != NULL)
-				free(line);
-			msg.type = LOGOUT;
-			msg.originpid = mypid;
-			strcpy(msg.contents, "I must go now, my planet needs me");
-			sendToServer(&msg, 0);
+			printf("Exiting\n");
+			break;
 		}
+		
 	}
-	deleteQueue(myQID);
+	ipc_queueDelete(myQueue);
     return 0;
 }
 
-key_t getKey(){
-	key_t key;
-	const char *filePath = (const char *) getenv(PATH_SOURCE);
-	if(filePath == NULL){
-		fprintf(stderr, "Couldn't get value of %s, setting filepath to '%s'\n", PATH_SOURCE, DEFAULT_PATH);
-		filePath = PATH_SOURCE;
-	}	
-	
-	if((key = ftok(filePath, PROJECT_ID)) == -1){
-		fprintf(stderr, "ftok error: %s\n", strerror(errno));	
-		exit(1);
-	}
-	return key;
-}
-
-int getQueue(key_t key, int flags){
-	int qid;
-	if((qid = msgget(key, flags)) == -1){
-		fprintf(stderr, "msgget error: %s\n", strerror(errno));
-		exit(1);
-	}
-	return qid;
-}
-
-void deleteQueue(int qid){
-	if((msgctl(qid, IPC_RMID, NULL)) == -1){
-		fprintf(stderr, "msgctl (delete) error: %s\n", strerror(errno));
-		exit(1);
-	}
-}
-
-
-int queueEmpty(int qid){
-	struct msqid_ds stat;	
-	if(msgctl(qid, IPC_STAT, &stat) == -1){
-		fprintf(stderr, "msgctl (stat) error: %s\n", strerror(errno));
-		safeExit(1);
-	}
-	return (stat.msg_qnum == 0);
-}
-
-
-int connectToServer(){
+int registerClient(){
+	int id;
 	Message msg;
     msg.type = LOGIN;
-    msg.originpid = mypid;
-    sprintf(msg.contents, "%d", myQID);
-    sendToServer(&msg, ACK);
-    int clientID = stringToInt(msg.contents);
-    printf("Connected to server. ClientID: %d\n", clientID);
-    return clientID;
-}
+    msg.originpid = getpid();
+    sprintf(msg.contents, "%d", myQueue);
 
-// todo -> bsd_queueReceive
-void receiveMessage(int qid, Message *msg){
-    if(msgrcv(qid, msg, MESSAGE_SIZE, 0, 0) == -1) {
-    	fprintf(stderr, "msgrcv error: %s\n", strerror(errno));
-    	safeExit(1);
+    ipc_queueSend(serverQueue, &msg);
+    ipc_queueReceive(myQueue, &msg);
+    if(ACK == msg.type){
+    	printf("Connected to the server. My id: %s\n", msg.contents);
+    	id = stringToInt(msg.contents);
     }
+    else{
+    	printf("Connection refused. Reason: %s\n", msg.contents);
+    	shutdown = 1;
+    	id = -1;
+    }
+    return id;
 }
 
-void processLine(char *line, ssize_t lineLength){
-	Message msg; 
-	parseLine(line, lineLength, &msg);
-	if(msg.type > 0)
-		sendToServer(&msg, 0);
-	else
-		printf("%s\n", HELP_INFO);
-}
-
-void parseLine(char *line, ssize_t lineLength, Message *msg){
+int parseLine(char *line, ssize_t lineLength, Message *msg){
+	int awaitResponse;
+	msg->type = 0;	
+	msg->originpid = getpid();
 	if(lineLength > MAX_MSG_LEN){
 		printf("%s\n", ERROR_MAX_LEN);
-		msg->type = 0;
-		return;
+		return -1;
 	}
 	else{
-		msg->originpid = mypid;
 		char *tmp = strtok(line, WSPACE_DELIMITERS);
 		if(tmp == NULL){
-			msg->type = 0;
-			return;
+			return -1;
 		}
 		else{
 			int i;
 			for(i = 0; i < PARSE_ARRAY_LEN; i++){
 				if(strcmp(tmp, COMMANDS[i]) == 0){
 					msg->type = TYPES[i];
+					if(LOGOUT == TYPES[i] || TERMINATE == TYPES[i])
+						awaitResponse = 0;
+					else
+						awaitResponse = 1;
 					break;
 				}
 			}
 			if(i == PARSE_ARRAY_LEN){
-				msg->type = 0;
-				return;
+				printf("%s\n", HELP_INFO);
+				return -1;
 			}
 		}
 		tmp = strtok(NULL, "");
@@ -157,41 +102,8 @@ void parseLine(char *line, ssize_t lineLength, Message *msg){
 			tmp[strlen(tmp) - 1] = '\0';
 			strcpy(msg->contents, tmp);
 		}
+		return awaitResponse;
 	}
-}
-
-
-// todo -> queueSend
-void sendToServer(Message *msg, MessageType expectedType){
-	int awaitResponse = 0;
-	switch(msg->type){
-    	case LOGOUT:
-    	case TERMINATE:
-    		printf("Exitting now\n");
-    		shutdown = 1;
-    		break;
-    	case ECHO:
-    	case UPPER:
-    	case TIME:
-    	case LOGIN:
-    		awaitResponse = 1;
-    		break;
-    	default:
-    		return;
-    }
-	if(msgsnd(serverQID, msg, MESSAGE_SIZE, 0) == -1) {
-        fprintf(stderr, "msgsnd error: %s\n", strerror(errno));
-        exit(1);
-    } 
-
-    if(awaitResponse){
-    	receiveMessage(myQID, msg);
-    	if(expectedType > 0 && msg->type != expectedType){
-    		printf("Expected different type (%d, got %ld). Contents: %s\n", expectedType, msg->type, msg->contents);
-    		safeExit(1);
-    	}
-		printf("server> %s\n", msg->contents);
-    }
 }
 
 int stringToInt(char *number){
@@ -205,7 +117,58 @@ int stringToInt(char *number){
     return value;
 }
 
-void safeExit(int exitCode){
-	deleteQueue(myQID);
-	exit(exitCode);
+
+// queue interface
+key_t ipc_getKey(char *path){
+	key_t key;
+	if(NULL == path){
+		fprintf(stderr, "%s\n", ERROR_FILEPATH);
+		exit(1);
+	}	
+	
+	if(-1 == (key = ftok(path, PROJECT_ID))){
+		fprintf(stderr, "%s\n", ERROR_FTOK);	
+		exit(1);
+	}
+	return key;
+}
+
+int ipc_queueOpen(key_t key, int flags){
+	int qid;
+	if(-1 == (qid = msgget(key, flags))){
+		fprintf(stderr, "%s\n", ERROR_IPC_OPEN);
+		exit(1);
+	}
+	return qid;
+}
+
+void ipc_queueDelete(int qid){
+	if(-1 == (msgctl(qid, IPC_RMID, NULL))){
+		fprintf(stderr, "%s\n", ERROR_IPC_DELETE);
+		exit(1);
+	}
+}
+
+void ipc_queueSend(int qid, Message *msg){
+	if(-1 == msgsnd(qid, msg, MESSAGE_SIZE, 0)) {
+        fprintf(stderr, "%s\n", ERROR_IPC_SEND);
+        exit(1);
+    }
+}
+
+Message *ipc_queueReceive(int qid, Message *msg){
+ 	if(-1 == msgrcv(qid, msg, MESSAGE_SIZE, 0, 0)) {
+  	 	fprintf(stderr, "%s\n", ERROR_IPC_RECV);
+        exit(1);
+    }
+    return msg;
+}
+
+int ipc_queueEmpty(int qid){
+	struct msqid_ds stat;	
+	if(-1 == msgctl(qid, IPC_STAT, &stat)){
+		fprintf(stderr, "%s\n", ERROR_IPC_STAT);
+		exit(1);
+	}
+	return (stat.msg_qnum == 0);
 }
