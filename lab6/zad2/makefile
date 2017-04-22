@@ -5,9 +5,11 @@ MAIN_FILES = $(wildcard src/*.c)
 OBJ_FILES = $(addprefix bin/, $(notdir $(MAIN_FILES:.c=.o)))
 EXEC_FILES = server client
 
-.PHONY: clean 
+.PHONY: clean remake
 
 all: $(EXEC_FILES)
+
+remake: clean all
 
 server: bin/server.o
 	$(CC) $^ -o $@ -lrt
