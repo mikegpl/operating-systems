@@ -3,21 +3,31 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/sem.h>
 
-#define QUEUE_SIZE 512
+#define QUEUE_MAX_SIZE 512
 
 typedef struct PidQueue PidQueue;
 struct PidQueue {
     unsigned int size;
-    pid_t array[QUEUE_SIZE];
+    unsigned int capacity;
+    pid_t array[QUEUE_MAX_SIZE];
 };
 
 int PidQueue_isEmpty(PidQueue *queue);
 
 pid_t PidQueue_get(PidQueue *queue);
 
-void PidQueue_put(PidQueue *queue, pid_t elem);
+int PidQueue_put(PidQueue *queue, pid_t elem);
 
-const char *ERROR_QUEUE_FULL;
+pid_t sync_PidQueue_isEmpty(PidQueue *queue, int semId, struct sembuf *buffer);
+
+pid_t sync_PidQueue_get(PidQueue *queue, int semId, struct sembuf *buffer);
+
+int sync_PidQueue_put(PidQueue *queue, int semId, struct sembuf *buffer, pid_t pid);
+
+int takeSemaphore(int semId, struct sembuf *buffer, short flag);
+
+int giveSemaphore(int semId, struct sembuf *buffer, short flag);
 
 #endif /* PIDQUEUE_H */
