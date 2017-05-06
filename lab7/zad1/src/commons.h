@@ -3,9 +3,10 @@
 
 #include "lib/pidQueue.h"
 
+typedef enum SemTypes {
+    BARBER = 0, FIFO
+} SemTypes;
+
 const char *KEY_PATH = ".";
-const char BARBER_KEY_ID = 'p';
-const char QUEUE_KEY_ID = 'q';
-const char MEMORY_KEY_ID = 'r';
-const char SEAT_FREE_ID = 's';
+const char PROJECT_ID = 42;
 #endif //LAB7_COMMONS_H
