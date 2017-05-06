@@ -1,13 +1,13 @@
+#include <stdio.h>
 #include <signal.h>
-#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
-#include "commons.h"
+#include "common.h"
+#include "lib/utils.h"
+#include "lib/pidQueue.h"
 
-// todo -> add error handling
-
-void sigHandler(int);
+void sigHandler(int sigNo);
 
 void createFIFO(unsigned int chairsCount);
 
@@ -16,10 +16,6 @@ void createSemaphores();
 void freeResources();
 
 void sleepAndWork();
-
-void takeSemaphore(int semArrayId, struct sembuf *buffer, unsigned short semIndex);
-
-void giveSemaphore(int semArrayId, struct sembuf *buffer, unsigned short semIndex);
 
 pid_t getFirstClone(struct sembuf *buffer);
 
@@ -37,15 +33,13 @@ int main(int argc, char *argv[]) {
         printf("You should provide number of seats, so master Kenobi can choose one of them\n");
         exit(EXIT_FAILURE);
     }
-    // todo -> add raise() for errors -> ERROR + errno + freeResources()
     unsigned int chairsCount = (unsigned int) atol(argv[1]);
-    signal(SIGINT, sigHandler);
+    if (signal(SIGINT, sigHandler) == SIG_ERR)
+        throwAndExit(NULL);
 
     createFIFO(chairsCount);
     createSemaphores();
     sleepAndWork();
-
-
     freeResources();
     return 0;
 }
@@ -54,21 +48,19 @@ void sleepAndWork() {
     printf("Barbershop quartet: barber is going to work\n");
     struct sembuf buffer;
     while (!closeShop) {
+        printf("Barbershop quartet @ %10.ld: Barber is going to sleep\n", getTimeStamp());
         takeSemaphore(semId, &buffer, BARBER);
-        printf("Barbershop quartet: barber is now awake\n");
         pid_t cloneId = getFirstClone(&buffer);
         giveHaircut(cloneId);
         while (1) {
             takeSemaphore(semId, &buffer, FIFO);
             cloneId = PidQueue_get(queue);
             if (cloneId != 0) {
-                printf("Barbershop quartet: barber is giving haircuts to clients from queue\n");
                 giveSemaphore(semId, &buffer, FIFO);
                 giveHaircut(cloneId);
             } else {
                 takeSemaphore(semId, &buffer, BARBER);
                 giveSemaphore(semId, &buffer, FIFO);
-                printf("Barbershop quartet: barber is falling asleep\n");
                 break;
             }
         }
@@ -76,9 +68,10 @@ void sleepAndWork() {
 }
 
 void giveHaircut(pid_t cloneId) {
-    printf("Barbershop quartet: %d has taken the seat, giving haircut - start\n", cloneId);
-    kill(cloneId, SIGUSR1);
-    printf("Barbershop quartet: %d has been given a haircut\n", cloneId);
+    printf("Barbershop quartet @ %10.ld: Barber started cutting  %d hair\n", getTimeStamp(), cloneId);
+    if (kill(cloneId, SIGUSR1) == -1)
+        throwAndExit(freeResources);
+    printf("Barbershop quartet @ %10.ld: Barber finished cutting %d hair\n", getTimeStamp(), cloneId);
 }
 
 pid_t getFirstClone(struct sembuf *buffer) {
@@ -88,45 +81,38 @@ pid_t getFirstClone(struct sembuf *buffer) {
     return cloneId;
 }
 
-void giveSemaphore(int semArrayId, struct sembuf *buffer, unsigned short semIndex) {
-    buffer->sem_num = semIndex;
-    buffer->sem_op = 1;
-    buffer->sem_flg = 0;
-    semop(semArrayId, buffer, 1);
-}
-
-void takeSemaphore(int semArrayId, struct sembuf *buffer, unsigned short semIndex) {
-    buffer->sem_num = semIndex;
-    buffer->sem_op = -1;
-    buffer->sem_flg = 0;
-    semop(semArrayId, buffer, 1);
-}
-
 void freeResources() {
-    shmdt(queue);
-    shmctl(queueId, IPC_RMID, NULL);
-    semctl(semId, 0, IPC_RMID, 0);
+    if (shmdt(queue) == -1)
+        throwAndExit(freeResources);
+    if (shmctl(queueId, IPC_RMID, NULL) == -1)
+        throwAndExit(freeResources);
+    if (semctl(semId, 0, IPC_RMID, 0) == -1)
+        throwAndExit(freeResources);
 }
 
 void createSemaphores() {
-    semId = semget(projectKey, 2, IPC_CREAT | 0666);
-    semctl(semId, BARBER, SETVAL, 0);
-    semctl(semId, FIFO, SETVAL, 1);
-    printf("%d, %d\n", semctl(semId, BARBER, GETVAL), semctl(semId, FIFO, GETVAL));
-
+    if ((semId = semget(projectKey, 2, IPC_CREAT | 0666)) == -1)
+        throwAndExit(freeResources);
+    if (semctl(semId, BARBER, SETVAL, 0) == -1)
+        throwAndExit(freeResources);
+    if (semctl(semId, FIFO, SETVAL, 1) == -1)
+        throwAndExit(freeResources);
 }
 
 void createFIFO(unsigned int chairsCount) {
-    projectKey = ftok(KEY_PATH, PROJECT_ID);
-    queueId = shmget(projectKey, sizeof(PidQueue), IPC_CREAT | 0666);
-    queue = (PidQueue *) shmat(queueId, NULL, 0);
+    if ((projectKey = ftok(KEY_PATH, PROJECT_ID)) == -1)
+        throwAndExit(NULL);
+    if ((queueId = shmget(projectKey, sizeof(PidQueue), IPC_CREAT | 0666)) == -1)
+        throwAndExit(NULL);
+    if ((queue = (PidQueue *) shmat(queueId, NULL, 0)) == (void *) -1)
+        throwAndExit(NULL);
     queue->size = 0;
     queue->chair = 0;
     queue->capacity = chairsCount;
 }
 
-void sigHandler(int signo) {
-    if (signo == SIGINT) {
+void sigHandler(int sigNo) {
+    if (sigNo == SIGINT) {
         printf("\nBarber, interrupted\n");
         closeShop = 1;
         freeResources();

@@ -1,9 +1,12 @@
-#include "commons.h"
+#include <stdio.h>
 #include <signal.h>
-#include <sys/wait.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <sys/shm.h>
-
+#include <sys/wait.h>
+#include "common.h"
+#include "lib/utils.h"
+#include "lib/pidQueue.h"
 
 void createClone(unsigned int haircutCount);
 
@@ -17,13 +20,7 @@ void getSemaphores();
 
 void setSignalHandling();
 
-void takeSemaphore(int semArrayId, struct sembuf *buffer, unsigned short semIndex);
-
-void giveSemaphore(int semArrayId, struct sembuf *buffer, unsigned short semIndex);
-
 int takeSeat(struct sembuf *buffer);
-
-const char *ERROR_FORK = "Error occured while forking";
 
 static key_t projectKey;
 static int queueId, semId;
@@ -55,39 +52,34 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void giveSemaphore(int semArrayId, struct sembuf *buffer, unsigned short semIndex) {
-    buffer->sem_num = semIndex;
-    buffer->sem_op = 1;
-    buffer->sem_flg = 0;
-    semop(semArrayId, buffer, 1);
-}
-
-void takeSemaphore(int semArrayId, struct sembuf *buffer, unsigned short semIndex) {
-    buffer->sem_num = semIndex;
-    buffer->sem_op = -1;
-    buffer->sem_flg = 0;
-    semop(semArrayId, buffer, 1);
-}
-
 void setSignalHandling() {
-    signal(SIGUSR1, sigHandler);
-    sigfillset(&eventMask);
-    sigdelset(&eventMask, SIGUSR1);
+    if (signal(SIGUSR1, sigHandler) == (void *) -1)
+        throwAndExit(NULL);
+    if (sigfillset(&eventMask) == -1)
+        throwAndExit(NULL);
+    if (sigdelset(&eventMask, SIGUSR1) == -1)
+        throwAndExit(NULL);
     sigset_t blockMask;
-    sigemptyset(&blockMask);
-    sigaddset(&blockMask, SIGUSR1);
-    sigprocmask(SIG_BLOCK, &blockMask, NULL);
+    if (sigemptyset(&blockMask) == -1)
+        throwAndExit(NULL);
+    if (sigaddset(&blockMask, SIGUSR1) == -1)
+        throwAndExit(NULL);
+    if (sigprocmask(SIG_BLOCK, &blockMask, NULL) == -1)
+        throwAndExit(NULL);
 }
 
 void getSemaphores() {
-    semId = semget(projectKey, 0, 0);
-    printf("%d, %d\n", semctl(semId, BARBER, GETVAL), semctl(semId, FIFO, GETVAL));
+    if ((semId = semget(projectKey, 0, 0)) == -1)
+        throwAndExit(NULL);
 }
 
 void getFIFO() {
-    projectKey = ftok(KEY_PATH, PROJECT_ID);
-    queueId = shmget(projectKey, 0, 0);
-    queue = (PidQueue *) shmat(queueId, NULL, 0);
+    if ((projectKey = ftok(KEY_PATH, PROJECT_ID)) == -1)
+        throwAndExit(NULL);
+    if ((queueId = shmget(projectKey, 0, 0)) == -1)
+        throwAndExit(NULL);
+    if ((queue = (PidQueue *) shmat(queueId, NULL, 0)) == (void *) -1)
+        throwAndExit(NULL);
 }
 
 void createClone(unsigned int haircutsToGet) {
@@ -95,14 +87,14 @@ void createClone(unsigned int haircutsToGet) {
     if (pid == 0) {
         sendCloneToBarber(haircutsToGet);
     } else if (pid < 0) {
-        fprintf(stderr, "%s\n", ERROR_FORK);
-        exit(EXIT_FAILURE);
+        throwAndExit(NULL);
     }
 }
 
 void sendCloneToBarber(unsigned int haircutsToGet) {
-    printf("%d: Entering the town to get %d haircuts.\n", getpid(), haircutsToGet);
     struct sembuf buffer;
+    pid_t myPid = getpid();
+    printf("%d @ %10.ld: START\n", myPid, getTimeStamp());
     while (haircutCount < haircutsToGet) {
         takeSemaphore(semId, &buffer, FIFO);
         int result = takeSeat(&buffer);
@@ -110,11 +102,10 @@ void sendCloneToBarber(unsigned int haircutsToGet) {
 
         if (result >= 0) {
             sigsuspend(&eventMask);
-            printf("%d: got cut\n", getpid());
+            printf("%d @ %10.ld: Got cut, leaving barbershop\n", myPid, getTimeStamp());
         }
-
     }
-    printf("%d: Leaving the town with my hair cut.\n\n", getpid());
+    printf("%d @ %10.ld: END\n", myPid, getTimeStamp());
     exit(EXIT_SUCCESS);
 }
 
@@ -123,16 +114,16 @@ int takeSeat(struct sembuf *buffer) {
     int isBarberAwake = semctl(semId, 0, GETVAL);
     if (!isBarberAwake) {
         giveSemaphore(semId, buffer, BARBER);
-        printf("%d: Waking up the barber.\n", myPid);
+        printf("%d @ %10.ld: Waking up the barber.\n", myPid, getTimeStamp());
         giveSemaphore(semId, buffer, BARBER);
         queue->chair = myPid;
         return 1;
     } else {
         if (PidQueue_put(queue, myPid) == -1) {
-            printf("%d: couldn't find a free seat\n", myPid);
+            printf("%d @ %10.ld: Leaving barbershop (queue is full)\n", myPid, getTimeStamp());
             return -1;
         } else {
-            printf("%d: I have taken place in the queue\n", myPid);
+            printf("%d @ %10.ld: Taking place in queue\n", myPid, getTimeStamp());
             return 0;
         }
     }
