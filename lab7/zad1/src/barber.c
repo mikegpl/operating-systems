@@ -83,11 +83,11 @@ pid_t getFirstClone(struct sembuf *buffer) {
 
 void freeResources() {
     if (shmdt(queue) == -1)
-        throwAndExit(freeResources);
+        throwAndExit(NULL);
     if (shmctl(queueId, IPC_RMID, NULL) == -1)
-        throwAndExit(freeResources);
+        throwAndExit(NULL);
     if (semctl(semId, 0, IPC_RMID, 0) == -1)
-        throwAndExit(freeResources);
+        throwAndExit(NULL);
 }
 
 void createSemaphores() {

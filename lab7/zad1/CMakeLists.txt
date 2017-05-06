@@ -14,4 +14,3 @@ set(KAMINO_SOURCES
         src/lib/pidQueue.h
         src/kamino.c src/lib/utils.h src/lib/utils.c src/common.h)
 add_executable(kamino ${KAMINO_SOURCES})
-

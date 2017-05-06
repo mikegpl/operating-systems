@@ -22,6 +22,8 @@ void setSignalHandling();
 
 int takeSeat(struct sembuf *buffer);
 
+void freeResources();
+
 static key_t projectKey;
 static int queueId, semId;
 static PidQueue *queue;
@@ -54,18 +56,18 @@ int main(int argc, char *argv[]) {
 
 void setSignalHandling() {
     if (signal(SIGUSR1, sigHandler) == (void *) -1)
-        throwAndExit(NULL);
+        throwAndExit(freeResources);
     if (sigfillset(&eventMask) == -1)
-        throwAndExit(NULL);
+        throwAndExit(freeResources);
     if (sigdelset(&eventMask, SIGUSR1) == -1)
-        throwAndExit(NULL);
+        throwAndExit(freeResources);
     sigset_t blockMask;
     if (sigemptyset(&blockMask) == -1)
-        throwAndExit(NULL);
+        throwAndExit(freeResources);
     if (sigaddset(&blockMask, SIGUSR1) == -1)
-        throwAndExit(NULL);
+        throwAndExit(freeResources);
     if (sigprocmask(SIG_BLOCK, &blockMask, NULL) == -1)
-        throwAndExit(NULL);
+        throwAndExit(freeResources);
 }
 
 void getSemaphores() {
@@ -87,7 +89,7 @@ void createClone(unsigned int haircutsToGet) {
     if (pid == 0) {
         sendCloneToBarber(haircutsToGet);
     } else if (pid < 0) {
-        throwAndExit(NULL);
+        throwAndExit(freeResources);
     }
 }
 
@@ -127,6 +129,11 @@ int takeSeat(struct sembuf *buffer) {
             return 0;
         }
     }
+}
+
+void freeResources() {
+    if (shmdt(queue) == -1)
+        throwAndExit(NULL);
 }
 
 void sigHandler(int sigNo) {
