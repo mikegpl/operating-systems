@@ -30,7 +30,7 @@ void *threadJob(void *arg) {
 
     while (recordsRead > 0) {
         for (int i = 0; i < recordsRead; i++) {
-            if (&recordArray == NULL)
+            if (recordArray == NULL)
                 break;
             if (strstr(recordArray[i].text, phrase) != NULL) {
                 TRYSSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
