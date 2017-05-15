@@ -12,13 +12,11 @@ int recordCount;
 int threadCount;
 pthread_t *threadIds;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-bool wait = true;
+pthread_attr_t attributes;
 
 void *threadJob(void *arg) {
     pthread_t myId = pthread_self();
-    TRYSSERT("setcanceltype", pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL), 0, "Couldn't set cancel type");
-
-    while (wait);
+    bool found = false;
 
     Record *recordArray = (Record *) malloc(recordCount * sizeof(Record));
     TRY("malloc", recordArray, NULL, "Couldn't alloc memory for record array");
@@ -33,16 +31,14 @@ void *threadJob(void *arg) {
             if (&recordArray == NULL)
                 break;
             if (strstr(recordArray[i].text, phrase) != NULL) {
-                TRYSSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
                 printf("Found phrase '%s'\t thread id: [%ld]\t record id: [%d]\n", phrase, myId,
                        recordArray[i].id);
+                found = true;
                 for (int j = 0; j < threadCount; j++) {
-                    if (threadIds[j] != myId) {
+                    if (threadIds[j] != pthread_self()) {
                         TRYSSERT("pthread_cancel", pthread_cancel(threadIds[j]), 0, "Couldn't stop thread");
                     }
                 }
-                TRYSSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
-                return (void *) 0;
             }
         }
         TRYSSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
@@ -50,7 +46,8 @@ void *threadJob(void *arg) {
         TRYSSERT("ferror", ferror(fileHandle), 0, "Couldn't read from file");
         TRYSSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
     }
-    printf("Thread id [%ld]: phrase '%s' not found\n", myId, phrase);
+    if (!found)
+        printf("Thread id [%ld]: phrase '%s' not found\n", myId, phrase);
     return (void *) 0;
 }
 
@@ -69,15 +66,11 @@ int main(int argc, char *argv[]) {
     threadIds = malloc(threadCount * sizeof(pthread_t));
     TRY("malloc", threadIds, NULL, "Couldn't alloc memory for thread ids");
 
+    pthread_attr_init(&attributes);
+    pthread_attr_setdetachstate(&attributes, PTHREAD_CREATE_DETACHED);
     for (int i = 0; i < threadCount; i++) {
-        TRYSSERT("pthread_create", pthread_create(&threadIds[i], NULL, threadJob, NULL), 0, "Couldn't create thread");
+        TRYSSERT("pthread_create", pthread_create(&threadIds[i], &attributes, threadJob, NULL), 0,
+                 "Couldn't create thread");
     }
-
-    wait = false;
-    for (int i = 0; i < threadCount; i++) {
-        TRYSSERT("pthread_join", pthread_join(threadIds[i], NULL), 0, "Couldn't join threads")
-    }
-    fclose(fileHandle);
-    free(threadIds);
-    return 0;
+    pthread_exit((void *) 0);
 }
