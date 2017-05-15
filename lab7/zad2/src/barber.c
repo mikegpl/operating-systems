@@ -70,7 +70,7 @@ void sleepAndWork() {
 
 void giveHaircut(pid_t cloneId) {
     printf("Barbershop quartet @ %10.ld: Barber started cutting  %d hair\n", getTimeStamp(), cloneId);
-    if (kill(cloneId, SIGUSR1) == -1)
+    if (kill(cloneId, SIGRTMIN) == -1)
         throwAndExit(freeResources);
     printf("Barbershop quartet @ %10.ld: Barber finished cutting %d hair\n", getTimeStamp(), cloneId);
 }

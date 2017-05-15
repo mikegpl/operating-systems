@@ -68,16 +68,16 @@ void freeResources() {
 }
 
 void setSignalHandling() {
-    if (signal(SIGUSR1, sigHandler) == (void *) -1)
+    if (signal(SIGRTMIN, sigHandler) == (void *) -1)
         throwAndExit(freeResources);
     if (sigfillset(&eventMask) == -1)
         throwAndExit(freeResources);
-    if (sigdelset(&eventMask, SIGUSR1) == -1)
+    if (sigdelset(&eventMask, SIGRTMIN) == -1)
         throwAndExit(freeResources);
     sigset_t blockMask;
     if (sigemptyset(&blockMask) == -1)
         throwAndExit(freeResources);
-    if (sigaddset(&blockMask, SIGUSR1) == -1)
+    if (sigaddset(&blockMask, SIGRTMIN) == -1)
         throwAndExit(freeResources);
     if (sigprocmask(SIG_BLOCK, &blockMask, NULL) == -1)
         throwAndExit(freeResources);
@@ -148,7 +148,7 @@ int takeSeat() {
 }
 
 void sigHandler(int sigNo) {
-    if (sigNo == SIGUSR1) {
+    if (sigNo == SIGRTMIN) {
         haircutCount++;
     }
 }
