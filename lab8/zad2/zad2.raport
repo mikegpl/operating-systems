@@ -1,0 +1,17 @@
+OS: Mint 18.3
+Kernel: 4.4.0-72-generic
+Processor: Intel(R) Core(TM) i5-4210H CPU @ 2.90GHz
+Compiler: gcc (Ubuntu 5.4.0-6ubuntu1~16.04.4) 5.4.0 20160609
+
+a) Sygnał do procesu:
+    1) bez maski - sygnały działają odpowiednio
+    2) z maską dla głównego wątku - tak samo
+    3) z handlerami - główny wątek obsługuje sygnał
+
+   Sygnał do wątku:
+    4) z maską - ignoruje SIGUSR1 i SIGTERM, reaguje na SIGKILL zakończeniem a na SIGSTOP zawieszeniem
+    5) z handlerami - wątek wypisuje dane z handlera a następnie kończy swoje działanie
+
+
+b) Zaobserwowano, że SIGFPE jest przechwytywany jedynie przez wątek w którym został on wygenerowany, ponadto wielokrotnie
+wywoływany był handler tego sygnału.

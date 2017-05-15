@@ -49,8 +49,6 @@ void *threadJob(void *arg) {
 
     while (recordsRead > 0) {
         for (int i = 0; i < recordsRead; i++) {
-            if (&recordArray == NULL)
-                break;
             if (strstr(recordArray[i].text, phrase) != NULL) {
                 printf("Found phrase '%s'\t thread id: [%ld]\t record id: [%d]\n", phrase, myId,
                        recordArray[i].id);
