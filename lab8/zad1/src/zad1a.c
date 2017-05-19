@@ -16,39 +16,37 @@ bool wait = true;
 
 void *threadJob(void *arg) {
     pthread_t myId = pthread_self();
-    TRYSSERT("setcanceltype", pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL), 0, "Couldn't set cancel type");
+    DESSERT("setcanceltype", pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL), 0, "Couldn't set cancel type");
 
     while (wait);
 
     Record *recordArray = (Record *) malloc(recordCount * sizeof(Record));
-    TRY("malloc", recordArray, NULL, "Couldn't alloc memory for record array");
+    ASSERT("malloc", recordArray, NULL, "Couldn't alloc memory for record array");
 
-    TRYSSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
+    DESSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
     size_t recordsRead = fread(recordArray, sizeof(Record), (size_t) recordCount, fileHandle);
-    TRYSSERT("ferror", ferror(fileHandle), 0, "Couldn't read from file");
-    TRYSSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
+    DESSERT("ferror", ferror(fileHandle), 0, "Couldn't read from file");
+    DESSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
 
     while (recordsRead > 0) {
         for (int i = 0; i < recordsRead; i++) {
-            if (recordArray == NULL)
-                break;
             if (strstr(recordArray[i].text, phrase) != NULL) {
-                TRYSSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
+                DESSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
                 printf("Found phrase '%s'\t thread id: [%ld]\t record id: [%d]\n", phrase, myId,
                        recordArray[i].id);
                 for (int j = 0; j < threadCount; j++) {
                     if (threadIds[j] != myId) {
-                        TRYSSERT("pthread_cancel", pthread_cancel(threadIds[j]), 0, "Couldn't stop thread");
+                        DESSERT("pthread_cancel", pthread_cancel(threadIds[j]), 0, "Couldn't stop thread");
                     }
                 }
-                TRYSSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
+                DESSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
                 return (void *) 0;
             }
         }
-        TRYSSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
+        DESSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
         recordsRead = fread(recordArray, sizeof(Record), (size_t) recordCount, fileHandle);
-        TRYSSERT("ferror", ferror(fileHandle), 0, "Couldn't read from file");
-        TRYSSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
+        DESSERT("ferror", ferror(fileHandle), 0, "Couldn't read from file");
+        DESSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
     }
     printf("Thread id [%ld]: phrase '%s' not found\n", myId, phrase);
     return (void *) 0;
@@ -65,17 +63,17 @@ int main(int argc, char *argv[]) {
     phrase = argv[4];
 
     fileHandle = fopen(filename, "r");
-    TRY("fopen", fileHandle, NULL, "Couldn't open the file");
+    ASSERT("fopen", fileHandle, NULL, "Couldn't open the file");
     threadIds = malloc(threadCount * sizeof(pthread_t));
-    TRY("malloc", threadIds, NULL, "Couldn't alloc memory for thread ids");
+    ASSERT("malloc", threadIds, NULL, "Couldn't alloc memory for thread ids");
 
     for (int i = 0; i < threadCount; i++) {
-        TRYSSERT("pthread_create", pthread_create(&threadIds[i], NULL, threadJob, NULL), 0, "Couldn't create thread");
+        DESSERT("pthread_create", pthread_create(&threadIds[i], NULL, threadJob, NULL), 0, "Couldn't create thread");
     }
 
     wait = false;
     for (int i = 0; i < threadCount; i++) {
-        TRYSSERT("pthread_join", pthread_join(threadIds[i], NULL), 0, "Couldn't join threads")
+        DESSERT("pthread_join", pthread_join(threadIds[i], NULL), 0, "Couldn't join threads")
     }
     fclose(fileHandle);
     free(threadIds);

@@ -40,12 +40,12 @@ void *threadJob(void *arg) {
     while (wait);
 
     Record *recordArray = (Record *) malloc(recordCount * sizeof(Record));
-    TRY("malloc", recordArray, NULL, "Couldn't alloc memory for record array");
+    ASSERT("malloc", recordArray, NULL, "Couldn't alloc memory for record array");
 
-    TRYSSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
+    DESSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
     size_t recordsRead = fread(recordArray, sizeof(Record), (size_t) recordCount, fileHandle);
-    TRYSSERT("ferror", ferror(fileHandle), 0, "Couldn't read from file");
-    TRYSSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
+    DESSERT("ferror", ferror(fileHandle), 0, "Couldn't read from file");
+    DESSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
 
     while (recordsRead > 0) {
         for (int i = 0; i < recordsRead; i++) {
@@ -55,10 +55,10 @@ void *threadJob(void *arg) {
                 return (void *) 0;
             }
         }
-        TRYSSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
+        DESSERT("mutex_lock", pthread_mutex_lock(&mutex), 0, "Couldn't lock mutex");
         recordsRead = fread(recordArray, sizeof(Record), (size_t) recordCount, fileHandle);
-        TRYSSERT("ferror", ferror(fileHandle), 0, "Couldn't read from file");
-        TRYSSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
+        DESSERT("ferror", ferror(fileHandle), 0, "Couldn't read from file");
+        DESSERT("mutex_unlock", pthread_mutex_unlock(&mutex), 0, "Couldn't unlock mutex");
     }
     printf("Thread id [%ld]: phrase '%s' not found\n", myId, phrase);
     return (void *) 0;
@@ -77,9 +77,9 @@ int main(int argc, char *argv[]) {
     testOption = atoi(argv[6]);
 
     fileHandle = fopen(filename, "r");
-    TRY("fopen", fileHandle, NULL, "Couldn't open the file");
+    ASSERT("fopen", fileHandle, NULL, "Couldn't open the file");
     threadIds = malloc(threadCount * sizeof(pthread_t));
-    TRY("malloc", threadIds, NULL, "Couldn't alloc memory for thread ids");
+    ASSERT("malloc", threadIds, NULL, "Couldn't alloc memory for thread ids");
 
     //  TESTS
     switch (testOption) {
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 
 
     for (int i = 0; i < threadCount; i++) {
-        TRYSSERT("pthread_create", pthread_create(&threadIds[i], NULL, threadJob, NULL), 0, "Couldn't create thread");
+        DESSERT("pthread_create", pthread_create(&threadIds[i], NULL, threadJob, NULL), 0, "Couldn't create thread");
     }
 
     wait = false;
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
         kill(getpid(), signalNumber);
     // \TESTS 2
     for (int i = 0; i < threadCount; i++) {
-        TRYSSERT("pthread_join", pthread_join(threadIds[i], NULL), 0, "Couldn't join threads")
+        DESSERT("pthread_join", pthread_join(threadIds[i], NULL), 0, "Couldn't join threads")
     }
     fclose(fileHandle);
     free(threadIds);

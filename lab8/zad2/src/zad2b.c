@@ -32,15 +32,15 @@ int main(int argc, char *argv[]) {
 
     pthread_t *threadIds = (pthread_t *) malloc(sizeof(pthread_t) * 200);
     for (int i = 0; i < 9; i++) {
-        TRYSSERT("pthread_create", pthread_create(&threadIds[i], NULL, threadJob1, NULL), 0, "Couldn't create thread");
+        DESSERT("pthread_create", pthread_create(&threadIds[i], NULL, threadJob1, NULL), 0, "Couldn't create thread");
     }
 
-    TRYSSERT("pthread_create", pthread_create(&threadIds[199], NULL, threadJob2, NULL), 0, "Couldn't create thread");
+    DESSERT("pthread_create", pthread_create(&threadIds[199], NULL, threadJob2, NULL), 0, "Couldn't create thread");
     sleep(2);
     wait = false;
 
     for (int i = 0; i < 10; i++) {
-        TRYSSERT("pthread_join", pthread_join(threadIds[i], NULL), 0, "Couldn't join threads")
+        DESSERT("pthread_join", pthread_join(threadIds[i], NULL), 0, "Couldn't join threads")
     }
     free(threadIds);
     return 0;

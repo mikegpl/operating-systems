@@ -4,13 +4,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define TRY(FUN, VAL, COMP, ERR) \
+#define ASSERT(FUN, VAL, COMP, ERR) \
   if(VAL == COMP) {\
   fprintf(stderr, "%s: %s\n", FUN, ERR); \
   exit(EXIT_FAILURE); \
   } \
 
-#define TRYSSERT(FUN, VAL, COMP, ERR) \
+// hehe
+#define DESSERT(FUN, VAL, COMP, ERR) \
   if(VAL != COMP) {\
   fprintf(stderr, "%s: %s\n", FUN, ERR); \
   exit(EXIT_FAILURE); \
