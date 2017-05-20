@@ -10,7 +10,6 @@
   exit(EXIT_FAILURE); \
   } \
 
-// hehe
 #define DESSERT(FUN, VAL, COMP, ERR) \
   if(VAL != COMP) {\
   fprintf(stderr, "%s: %s\n", FUN, ERR); \
