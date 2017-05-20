@@ -2,3 +2,5 @@
 *.a
 *.so
 main
+**/.idea/*
+**/cmake-build-debug/*
