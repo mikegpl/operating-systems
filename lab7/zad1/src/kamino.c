@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <signal.h>
 #include <unistd.h>
-#include <stdlib.h>
 #include <sys/shm.h>
 #include <sys/wait.h>
 #include "common.h"

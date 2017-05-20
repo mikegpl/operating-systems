@@ -1,11 +1,9 @@
 #define _GNU_SOURCE
 
-#include <stdio.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <semaphore.h>
 #include "common.h"
 #include "lib/utils.h"
 #include "lib/pidQueue.h"

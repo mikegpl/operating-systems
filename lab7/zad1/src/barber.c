@@ -1,8 +1,5 @@
-#include <stdio.h>
 #include <signal.h>
-#include <sys/ipc.h>
 #include <sys/shm.h>
-#include <sys/sem.h>
 #include "common.h"
 #include "lib/utils.h"
 #include "lib/pidQueue.h"
