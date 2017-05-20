@@ -94,7 +94,6 @@ void *writerJob(void *args) {
         }
         printf("[%ld] Writer done, modified %d numbers\n", getTimeStamp(), toModify);
 
-        printf("DEBUG locking second mutex\n");
         pthread_mutex_lock(&mutex);
         writers--;
         activeWriters--;
@@ -103,7 +102,6 @@ void *writerJob(void *args) {
         } else {
             pthread_cond_broadcast(&readersQueue);
         }
-        printf("DEBUG unlocking second mutex\n");
         pthread_mutex_unlock(&mutex);
     }
     return (void *) 0;
