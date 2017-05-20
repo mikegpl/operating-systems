@@ -11,6 +11,7 @@ void takeSemaphore(sem_t *semaphore) {
 sem_t *createSemaphore(const char *name, int defaultValue) {
     sem_t *semaphore = sem_open(name, O_CREAT | O_RDWR, 0666, defaultValue);
     DESSERT("sem_open", semaphore, SEM_FAILED, "Error while opening semaphore");
+    return semaphore;
 }
 
 void deleteSemaphore(sem_t *semaphore, const char *name) {
