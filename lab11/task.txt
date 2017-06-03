@@ -1,0 +1,8 @@
+Napisz program, który na sockecie domeny internetowej, typu datagramowego,
+będzie nasłuchiwał requestów od klientów. Po otrzymaniu requestu obsługa polega
+na wymianie komunikatów HELLO (początek trasmisji/protokołu) oraz BYE (koniec).
+Oba programy (serwer i klient) powinny potwierdzić na konsoli koniec i początek
+transmisji. Po stronie serwera obsługa requestów powinna być realizowana przez
+proces potomny. Proces potomny powinien sygnalizować procesowi macierzystemu początek
+i koniec obsługi requestu. Proces macierzysty powinien kontrolować/limitować maksymalną
+liczbę jednocześnie obsługiwanych requestóœ (parametr programu).
