@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <arpa/inet.h>
-#include <sys/wait.h>
+#include <signal.h>
 
 #define BUFFER_SIZE 512
 
@@ -13,12 +13,17 @@ void handleRequest(char *request);
 
 void setupUDPSocket(char *address, uint16_t port);
 
-static int socketDesc;
-uint16_t port;
-static unsigned int maxRequestCount = 0;
-static unsigned int currentRequestCount = 0;
+void setupSignalHandling();
+
+void signalHandler(int signo);
+
+static int socketDesc, run = 1;
+static uint16_t port;
+static unsigned int maxRequestCount = 0, currentRequestCount = 0;
 static struct sockaddr_in serverSock, client_sock;
 static socklen_t socklen = sizeof(client_sock);
+static sigset_t eventMask;
+
 
 int main(int argc, char *argv[]) {
     if (argc != 4) {
@@ -28,19 +33,21 @@ int main(int argc, char *argv[]) {
 
     port = (uint16_t) atoi(argv[2]);
     maxRequestCount = (unsigned int) atoi(argv[3]);
-    printf("%d, %d, %s\n", port, maxRequestCount, argv[1]);
+
+    setupUDPSocket(argv[1], port);
+    setupSignalHandling();
+
 
     char buffer[BUFFER_SIZE];
     size_t receivedSize;
-    setupUDPSocket(argv[1], port);
-
-    int shutdown = 0;
-    while (!shutdown) {
+    while (run) {
         fflush(stdout);
 
+        printf("Hanging on receive\n");
         if ((receivedSize = (size_t) recvfrom(socketDesc, buffer, BUFFER_SIZE, 0, (struct sockaddr *) &client_sock, &socklen)) == -1) {
             printExit("recvfrom() error");
         }
+        printf("After receive\n");
 
         if (strncmp(buffer, "HELLO", 5) == 0) {
             printf("Hello there! Connection [%s][%d]\n", inet_ntoa(client_sock.sin_addr), ntohs(client_sock.sin_port));
@@ -52,7 +59,7 @@ int main(int argc, char *argv[]) {
             if (currentRequestCount < maxRequestCount)
                 handleRequest(buffer);
             else {
-                // sleep, waiting for REQUEST_HANDLED signal
+                sigsuspend(&eventMask);
                 handleRequest(buffer);
             }
         }
@@ -63,7 +70,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    close(socket);
     return 0;
 }
 
@@ -75,15 +81,16 @@ void printExit(char *msg) {
 
 void handleRequest(char *request) {
     currentRequestCount++;
-
     char response[BUFFER_SIZE];
     strcpy(response, request);
     response[strlen(response) - 1] = '\0';
     if (fork() == 0) {
+        pid_t parentPid = getppid();
+        kill(parentPid, SIGRTMIN);
         printf("Processing request [%s] in %d\n", response, getpid());
+        sleep(2);
+        kill(parentPid, SIGRTMIN + 1);
         exit(0);
-    } else {
-        wait(NULL);
     }
 }
 
@@ -99,5 +106,24 @@ void setupUDPSocket(char *address, uint16_t port) {
     serverSock.sin_addr.s_addr = inet_addr(address);
     if (bind(socketDesc, (struct sockaddr *) &serverSock, sizeof(serverSock)) == -1) {
         printExit("bind() error");
+    }
+}
+
+void setupSignalHandling() {
+    signal(SIGRTMIN, signalHandler);
+    signal(SIGRTMIN + 1, signalHandler);
+    sigfillset(&eventMask);
+    sigdelset(&eventMask, SIGRTMIN + 1);
+}
+
+void signalHandler(int signo) {
+    if (signo == SIGINT) {
+        close(socketDesc);
+        exit(EXIT_SUCCESS);
+    } else if (signo == SIGRTMIN) {
+        printf("Server: processing request started\n");
+    } else if (signo == SIGRTMIN + 1) {
+        printf("Server: processing request finished\n");
+        currentRequestCount--;
     }
 }
